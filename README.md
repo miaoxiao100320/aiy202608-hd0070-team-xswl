@@ -193,3 +193,4 @@ npm run dev
 欢迎学习与参考，使用请署名。
 
 > 本项目为 AIY 黑客松参赛作品，作品归团队所有；AIY 组委会仅作收录与展示。
+<img width="2880" height="1738" alt="ad56e7d354b87b9d8ca49aa9798e5477" src="https://github.com/user-attachments/assets/aa9ab15c-4254-485a-9fd3-ed097feb6e6a" />
