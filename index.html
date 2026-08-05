@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <title>谷雨 · AI谷子店铺经营管家</title>
   <style>
     /* ============ 设计令牌 ============ */
@@ -46,7 +46,29 @@
       --radius-lg: 20px;
       --radius-xl: 28px;
       --ease: cubic-bezier(.2,.7,.2,1);
+      --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+      /* 兼容旧变量名（部分历史代码用 --green-*） */
+      --green: var(--primary);
+      --green-dark: var(--primary-dark);
+      --green-soft: var(--primary-soft);
+      --green-light: var(--primary-light);
     }
+
+    /* 谷雨专属装饰：渐变圆环 SVG */
+    .grain-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.18  0 0 0 0 0.34  0 0 0 0 0.24  0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+      opacity: 0.55;
+      mix-blend-mode: multiply;
+    }
+    /* 谷雨专属：渐变光斑（左上 + 右下 sage/amber 柔光） */
+    .grain-overlay::after {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(60% 50% at 12% 8%, rgba(79,122,91,0.16), transparent 60%),
+        radial-gradient(50% 40% at 92% 92%, rgba(232,155,69,0.14), transparent 60%);
+    }
+    #root { position: relative; z-index: 1; min-height: 100vh; }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -245,12 +267,43 @@
     }
     .wizard-body {
       flex: 1; display: flex; align-items: center; justify-content: center;
-      padding: 40px 20px;
+      padding: 40px 20px; gap: 48px; flex-wrap: wrap;
     }
     .wizard-card {
       width: 100%; max-width: 720px; background: #fff;
       border-radius: var(--radius-lg); padding: 40px 48px;
       box-shadow: var(--shadow);
+    }
+    /* 登录页右边的二次元装饰 */
+    .wizard-art {
+      flex-shrink: 0; width: 320px; display: flex; flex-direction: column; align-items: center; gap: 18px;
+      animation: riseIn 0.7s var(--ease) 0.2s both;
+    }
+    .wizard-art .art-frame {
+      width: 320px; height: 380px; border-radius: var(--radius-lg);
+      overflow: hidden; position: relative; box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, #1A2D20, #2C4A37 60%, #4F7A5B);
+    }
+    .wizard-art .art-frame img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .8s var(--ease);
+    }
+    .wizard-art .art-frame:hover img { transform: scale(1.04); }
+    .wizard-art .art-frame::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, transparent 50%, rgba(26,45,32,0.55) 100%);
+    }
+    .wizard-art .art-quote {
+      max-width: 320px; text-align: center;
+      font-family: "Noto Serif SC", serif; font-size: 14px;
+      color: var(--text-muted); line-height: 1.7; letter-spacing: 0.04em;
+    }
+    .wizard-art .art-quote em {
+      display: block; font-style: normal; color: var(--primary-dark);
+      font-size: 18px; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.1em;
+    }
+    @media (max-width: 980px) {
+      .wizard-art { display: none; }
     }
     /* 移动端：wizard-card padding 缩小，避免内容溢出 */
     @media (max-width: 480px) {
@@ -390,26 +443,154 @@
     .page-head > select,
     .page-head > div:last-child { flex-shrink: 0; }
 
-    /* ============ 卡片 / 区块 ============ */
+    /* ============ Hero 横幅（看板顶部） ============ */
+    .hero-banner {
+      position: relative; overflow: hidden; isolation: isolate;
+      border-radius: var(--radius-lg); margin-bottom: 24px;
+      background: linear-gradient(135deg, #1A2D20 0%, #2C4A37 55%, #4F7A5B 100%);
+      color: #FDFBF6; padding: 32px 40px 36px;
+      min-height: 180px; display: flex; align-items: center; gap: 32px;
+    }
+    .hero-banner::before {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background:
+        radial-gradient(60% 80% at 100% 50%, rgba(232,155,69,0.22), transparent 60%),
+        radial-gradient(40% 60% at 0% 100%, rgba(79,122,91,0.4), transparent 60%);
+    }
+    .hero-text { flex: 1; min-width: 0; }
+    .hero-text .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(253,251,246,0.7); margin-bottom: 12px; font-weight: 500;
+    }
+    .hero-text h1 {
+      font-family: "Noto Serif SC", serif;
+      font-size: 30px; font-weight: 700; line-height: 1.25;
+      color: #FDFBF6; margin: 0 0 10px; letter-spacing: 0.02em;
+    }
+    .hero-text h1 .accent { color: var(--accent); }
+    .hero-text .sub {
+      color: rgba(253,251,246,0.75); font-size: 14px; line-height: 1.7; max-width: 560px;
+    }
+    .hero-art {
+      width: 140px; height: 180px; border-radius: var(--radius);
+      overflow: hidden; flex-shrink: 0; box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+      border: 1.5px solid rgba(253,251,246,0.2);
+    }
+    .hero-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    @media (max-width: 720px) {
+      .hero-banner { flex-direction: column; padding: 24px; align-items: flex-start; }
+      .hero-art { width: 100px; height: 130px; }
+      .hero-text h1 { font-size: 22px; }
+    }
+
+    /* count-up 数字初始化（透明，准备动画） */
+    .count-up { display: inline-block; }
+
+    /* ============ 日历页面 ============ */
+    .cal-legend {
+      display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+      padding: 10px 18px; margin-bottom: 14px; background: #fff;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: 12px; color: var(--text-muted);
+    }
+    .cal-legend .dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      margin-right: 6px; vertical-align: middle;
+    }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+      background: #fff; padding: 14px; border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+    .cal-head-cell {
+      text-align: center; font-size: 12px; color: var(--text-muted);
+      font-weight: 600; padding: 8px 0; letter-spacing: 0.1em;
+    }
+    .cal-cell {
+      min-height: 96px; max-height: 96px; padding: 6px 8px; background: var(--bg);
+      border-radius: var(--radius-sm); border: 1px solid transparent;
+      display: flex; flex-direction: column; gap: 3px; overflow: hidden;
+    }
+    .cal-cell.blank { background: transparent; border: none; }
+    .cal-cell.today { background: var(--primary-soft); border-color: var(--primary); }
+    .cal-cell-head {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .cal-cell.today .cal-day { color: var(--primary-dark); font-weight: 700; }
+    .cal-day { font-weight: 600; }
+    .cal-event {
+      display: flex; align-items: center; gap: 4px;
+      padding: 2px 5px; border-radius: 3px;
+      background: #fff; border: 1px solid var(--border);
+      font-size: 10.5px; line-height: 1.25; cursor: pointer;
+      transition: all .15s var(--ease);
+      flex-shrink: 0;
+    }
+    .cal-event:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .cal-event.done { opacity: 0.5; text-decoration: line-through; }
+    .cal-event .dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .cal-ev-text {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cal-more { font-size: 10px; color: var(--text-light); padding-left: 6px; }
+    .cal-list { display: flex; flex-direction: column; gap: 8px; }
+    .cal-row {
+      display: grid; grid-template-columns: 200px 1fr auto;
+      align-items: center; gap: 14px; padding: 12px 14px;
+      background: var(--bg); border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .cal-row.done { opacity: 0.55; }
+    .cal-row-date {
+      display: flex; align-items: center; gap: 6px; font-size: 13px;
+    }
+    .cal-row-date .dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    }
+    .cal-row-title { font-size: 13px; font-weight: 500; }
+    .cal-row-actions { display: flex; align-items: center; gap: 6px; }
+
+
     .stats-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;
     }
     .stat-card {
       background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 18px 20px; position: relative; transition: all .15s ease;
+      padding: 20px 22px 18px; position: relative; transition: all .25s var(--ease);
+      overflow: hidden; isolation: isolate;
     }
+    /* 顶部细线 accent（hover 时高亮） */
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .35s var(--ease);
+    }
+    .stat-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--primary-light); }
+    .stat-card:hover::before { transform: scaleX(1); }
     .stat-card.clickable { cursor: pointer; }
     .stat-card.clickable:hover {
       border-color: var(--primary-light); box-shadow: var(--shadow);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
     }
     .stat-card .label { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
-    .stat-card .value { font-size: 26px; font-weight: 600; margin-top: 8px; color: var(--text); }
-    .stat-card .delta { font-size: 12px; margin-top: 4px; }
+    .stat-card .value {
+      font-family: "Bricolage Grotesque", "Manrope", sans-serif;
+      font-size: 30px; font-weight: 700; margin-top: 10px; line-height: 1.1;
+      background: linear-gradient(135deg, var(--primary-darker) 0%, var(--primary) 50%, var(--accent-dark) 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .stat-card .delta { font-size: 12px; margin-top: 6px; }
     .stat-card .delta.up { color: var(--success); }
     .stat-card .delta.down { color: var(--danger); }
-    .stat-card .arrow { position: absolute; right: 16px; top: 16px; color: var(--text-light); font-size: 14px; }
+    .stat-card .arrow { position: absolute; right: 16px; top: 16px; color: var(--text-light); font-size: 14px; transition: transform .2s var(--ease); }
     .stat-card.clickable .arrow { color: var(--primary); }
+    .stat-card.clickable:hover .arrow { transform: translateX(3px); }
 
     .panel {
       background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg);
@@ -865,7 +1046,7 @@
     .ai-window.open { transform:scale(1) translateY(0); opacity:1; pointer-events:auto; }
     .ai-head {
       display:flex; align-items:center; gap:10px; padding:14px 16px;
-      background:linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+      background:linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
       color:#fff;
     }
     .ai-head img { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,.3); }
@@ -875,9 +1056,52 @@
     .ai-head .close:hover { opacity:1; }
     .ai-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--bg); }
     .ai-msg { max-width:80%; padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.7; white-space:pre-wrap; word-wrap:break-word; }
-    .ai-msg.user { align-self:flex-end; background:var(--green); color:#fff; border-bottom-right-radius:4px; }
-    .ai-msg.bot  { align-self:flex-start; background:#fff; color:var(--text); border:1px solid var(--line-2); border-bottom-left-radius:4px; }
+    .ai-msg.user { align-self:flex-end; background:#4F7A5B; color:#FFFFFF !important; border-bottom-right-radius:4px; box-shadow: 0 2px 6px rgba(79,122,91,.25); }
+    .ai-msg.user * { color:#FFFFFF !important; }
+    .ai-msg.bot  { align-self:flex-start; background:#fff; color:#1F2421; border:1px solid #E6E2D5; border-bottom-left-radius:4px; }
     .ai-msg .msg-meta { font-size:10px; color:var(--text-4); margin-top:4px; opacity:0.7; }
+
+    /* AI 助手推荐方案按钮（覆盖 .ai-msg 的 white-space） */
+    .ai-msg.bot { white-space: normal; }
+
+    /* AI 助手推荐方案按钮 */
+    .ai-actions {
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      white-space: normal;
+    }
+    .ai-actions-title {
+      font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;
+    }
+    .ai-action-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 12px; margin-bottom: 6px;
+      background: linear-gradient(135deg, #FCFBF8, #fff);
+      border: 1.5px solid var(--border-strong); border-radius: var(--radius);
+      cursor: pointer; text-align: left; transition: all .2s var(--ease);
+      font-size: 13px; color: var(--text);
+    }
+    .ai-action-btn:hover { border-color: var(--primary); transform: translateX(2px); box-shadow: var(--shadow-sm); }
+    .ai-action-btn:disabled, .ai-action-btn.adopted { opacity: 0.7; cursor: not-allowed; }
+    .ai-action-btn.adopted { background: var(--primary-soft); border-color: var(--primary); }
+    .ai-action-btn .aa-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .ai-action-btn .aa-icon.clearance { background: var(--danger-soft); color: var(--danger); }
+    .ai-action-btn .aa-icon.purchase  { background: var(--accent-soft);  color: var(--accent-dark); }
+    .ai-action-btn .aa-icon.activity  { background: var(--info-soft);    color: var(--info); }
+    .ai-action-btn .aa-icon.adopted   { background: var(--primary);      color: #fff; }
+    .ai-action-btn .aa-body { flex: 1; min-width: 0; }
+    .ai-action-btn .aa-label { font-weight: 500; line-height: 1.4; }
+    .ai-action-btn .aa-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .ai-action-btn .aa-arrow {
+      font-size: 12px; color: var(--primary); font-weight: 500; flex-shrink: 0;
+      transition: transform .2s var(--ease);
+    }
+    .ai-action-btn:hover .aa-arrow { transform: translateX(3px); }
+
     .ai-quick { display:flex; flex-wrap:wrap; gap:6px; padding:10px 14px; background:#fff; border-top:1px solid var(--line-2); }
     .ai-quick button {
       font-size:12px; padding:6px 10px; border:1px solid var(--line-2);
@@ -910,7 +1134,7 @@
   </style>
 </head>
 <body>
-
+<div class="grain-overlay" aria-hidden="true"></div>
 <div id="root"></div>
 
 <!-- AI 分析逻辑模块（独立文件） -->
@@ -1179,7 +1403,7 @@ const icon = (name, sizeOrTint) => {
  * 状态
  * ========================================================= */
 const state = {
-  page: "dashboard",          // dashboard | weekly | monthly | purchasePlan | store
+  page: "dashboard",          // dashboard | weekly | monthly | store
   wizardStep: 0,              // 0=phone, 1=code, 2=shopInfo, 3=done
   phone: "",
   code: ["", "", "", "", "", ""],
@@ -1199,62 +1423,67 @@ const state = {
   selectedClearance: null,    // 选中的清仓方案
   selectedProducts: [],       // 选中的滞销商品
 
-  // 进货计划（从周报 IP 异动/月报进货推荐 应用而来）
+  // 进货 / 补货计划（统一存储，用 source 区分：weekly=周报补货, monthly=月报进货）
+  // { id, source, ip, product, qty, reason, createdAt, done, scheduledDate }
   purchasePlan: [],
+
+  // 采纳的清仓方案（用户在月报 / 周报"清仓方案"里点击"加入今日看板"后进入这里）
+  // { id, source, urgency, title, affects, steps, scheduledDate, createdAt, done }
+  clearancePlan: [],
+
+  // 日历事件（统一视图：进货 + 补货 + 清仓 + 活动 全部按时间排好）
+  // { id, type: 'restock'|'purchase'|'clearance'|'activity', title, ip, date, refId, source, done }
+  calendar: [],
+
+  // 当前查看的日历月份（YYYY-MM 字符串）
+  calMonth: new Date().toISOString().slice(0, 7),
 
   // AI 助手聊天记录
   aiChat: [],
 
   // ========== 今日待办 To Do ==========
-  // 每条 todo 形如：
-  // { id, title, category: "滞销"|"补货"|"活动", priority: 1|2|3,
-  //   steps: [{title, body}], source: "周报"|"月报"|"手动", sourceLabel,
-  //   affects: ["IP1","IP2"], done: false, createdAt: "2026-08-05" }
-  todos: [
-    // 预置 3 条示例，方便看板不空
-    {
-      id: "t1", priority: 3, category: "滞销", source: "月报", sourceLabel: "7月月报 · 紧急清仓",
-      title: "进击的巨人 / 排球少年 · 全线出清",
-      affects: ["进击的巨人", "排球少年"],
-      ddl: "2026-08-30",
-      done: false,
-      steps: [
-        { title: "盘点与分级", body: "把衰退期 SKU 分成 3 档：徽章 / 拍立得 / 立牌，分别贴橙、红、绿三色标签区分" },
-        { title: "打包月度特惠", body: "3 件 99 元盲盒组合，5 件 159 元组合装，月底漫展主推" },
-        { title: "闲鱼批量挂单", body: "立牌类 5 折起、徽章类 3 折起、拍立得 4 折；每天发 3 条朋友圈引流" },
-        { title: "跨店调拨", body: "联系同城 3 家谷店，9 折打包批发 50% 库存；剩余部分走仓库调拨" },
-        { title: "DDL 复盘", body: "30 天后盘点剩余，按 2 折出闲鱼或作赠品处理；同时彻底清空该 IP 货架" },
-      ]
-    },
-    {
-      id: "t2", priority: 2, category: "补货", source: "月报", sourceLabel: "7月月报 · 进货建议",
-      title: "补货 葬送的芙莉莲吧唧（白情复刻）80 个",
-      affects: ["葬送的芙莉莲"],
-      ddl: "2026-08-15",
-      done: false,
-      steps: [
-        { title: "联系供应商", body: "微信找长期供应商，8/6 前确认库存与价格；预计 ¥8/件，¥640 总成本" },
-        { title: "下单与付款", body: "下单 80 个，付款 50% 订金 ¥320；保留订单截图" },
-        { title: "到货验收", body: "8/12 前到货，验收数量与质量；破损率 < 2% 才收货" },
-        { title: "上架与定价", body: "设置售价 ¥25/件，陈列在主推位；前 3 天 8.5 折试水" },
-      ]
-    },
-    {
-      id: "t3", priority: 1, category: "活动", source: "周报", sourceLabel: "本周周报 · 经营建议",
-      title: "参加周日 ChinaJoy 预热场漫展",
-      affects: [],
-      ddl: "2026-08-09",
-      done: false,
-      steps: [
-        { title: "档口预约", body: "联系漫展主办方确认 8/9 档口位置（最好在主通道 5m 内）" },
-        { title: "备货清单", body: "咒术回战 + 芙莉莲试水套装各 30 套；5 折清仓款 50 个（引流用）" },
-        { title: "物料准备", body: "桌布、扫码立牌、收款码、塑料袋、零钱 ¥200；店员 1 名兼职" },
-        { title: "现场陈列", body: "主推立牌正面展示；吧唧 5 个一组用透明袋装好，标 99 元" },
-        { title: "收摊复盘", body: "当晚盘点现金 + 销售，发布 1 条朋友圈现场图预热下次" },
-      ]
-    }
-  ],
+  // 不再预置，由 getTodayTodos() 动态从 calendar 里"今日项"生成
+  todos: [],
 };
+
+/* =========================================================
+ * 工具：根据今日日期，从日历里生成今日待办（动态）
+ *   逻辑：日历里 date == 今日 的所有事件 → 转成 To Do
+ * ========================================================= */
+function getTodayTodos() {
+  const today = new Date().toISOString().slice(0, 10);
+  return state.calendar
+    .filter(c => c.date === today)
+    .map(c => {
+      // 优先级：clearance 跟着 urgency；restock/purchase 中等；activity 普通
+      const priority = c.type === 'clearance' ? (c.urgency || 2) : c.type === 'activity' ? 1 : 2;
+      const categoryMap = { restock: '补货', purchase: '进货', clearance: '清仓', activity: '活动' };
+      const sourceMap = { restock: '周报', purchase: '月报', clearance: '月报', activity: '月报' };
+      const sourceLabelMap = {
+        restock: '本周周报 · 补货计划',
+        purchase: '月报 · 进货计划',
+        clearance: '月报 · 清仓方案',
+        activity: '月报 · 活动建议',
+      };
+      return {
+        id: 'todo-' + c.id,
+        priority,
+        category: categoryMap[c.type] || '其他',
+        source: sourceMap[c.type] || '手动',
+        sourceLabel: sourceLabelMap[c.type] || '手动添加',
+        title: c.title,
+        affects: c.ip ? [c.ip] : [],
+        ddl: c.date,
+        done: c.done,
+        calId: c.id,
+        steps: c.steps || [],
+      };
+    })
+    .sort((a, b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return b.priority - a.priority;
+    });
+}
 
 /* =========================================================
  * 路由
@@ -1278,6 +1507,30 @@ function render() {
   // 主应用
   root.innerHTML = renderApp();
   bindApp();
+  // 数字滚动动画
+  requestAnimationFrame(() => animateCountUp());
+}
+
+/* count-up 数字滚动：从 0 缓动到目标值（带千分位 / 货币格式） */
+function animateCountUp() {
+  const nodes = document.querySelectorAll(".count-up[data-count]");
+  if (!nodes.length) return;
+  const duration = 900; // ms
+  const start = performance.now();
+  const fmtMoney = (n) => "¥" + Math.round(n).toLocaleString("zh-CN");
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    // easeOutCubic
+    const e = 1 - Math.pow(1 - t, 3);
+    nodes.forEach(n => {
+      const target = parseFloat(n.dataset.count) || 0;
+      const cur = target * e;
+      const fmt = n.dataset.format || "int";
+      n.textContent = fmt === "money" ? fmtMoney(cur) : Math.round(cur).toString();
+    });
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
 
 /* =========================================================
@@ -1304,6 +1557,16 @@ function renderWizard() {
         <div class="badge-pill"><span class="dot"></span>Demo 演示环境</div>
       </div>
       <div class="wizard-body">
+        <div class="wizard-art" aria-hidden="true">
+          <div class="art-frame">
+            <img src="imgs/anime/12-greenery-yellow.png" alt="谷雨 · 二次元意象" />
+          </div>
+          <div class="art-quote">
+            <em>谷 雨 时 节</em>
+            谷得雨而生，店因你而旺。<br/>
+            今日起，每一笔订单都有 AI 替你盯着。
+          </div>
+        </div>
         <div class="wizard-card">
           <div class="wizard-steps">
             ${[0,1,2].map(i => `<div class="step ${i <= step ? 'active' : ''}"></div>`).join("")}
@@ -1562,7 +1825,7 @@ function renderApp() {
           ${state.page === "dashboard" ? renderDashboard() : ""}
           ${state.page === "weekly"       ? renderWeekly()       : ""}
           ${state.page === "monthly"      ? renderMonthly()      : ""}
-          ${state.page === "purchasePlan" ? renderPurchasePlan() : ""}
+          ${state.page === "calendar"     ? renderCalendar()     : ""}
           ${state.page === "store"        ? renderStore()        : ""}
         </div>
       </div>
@@ -1570,7 +1833,7 @@ function renderApp() {
 
     <!-- AI 经营助手 · 浮动入口 -->
     <div class="ai-fab" id="ai-fab" title="谷雨 AI 经营问答">
-      <img src="icons/ai-advisor.png" alt="谷雨 AI" />
+      <img src="imgs/anime/10-gold-flowers.png" alt="谷雨 AI" />
       <div class="pulse-dot"></div>
       <span class="badge">谷雨 AI 帮你解答</span>
     </div>
@@ -1578,7 +1841,7 @@ function renderApp() {
     <!-- AI 助手窗口 -->
     <div class="ai-window" id="ai-window">
       <div class="ai-head">
-        <img src="icons/ai-advisor.png" alt="" />
+        <img src="imgs/anime/10-gold-flowers.png" alt="" />
         <div>
           <div class="name">谷雨 · 谷子店长 AI</div>
           <div class="sub">7×24 在线 · 库存/销量/利润/IP 热度 智能分析</div>
@@ -1607,7 +1870,7 @@ function renderSidebar() {
     { id: "dashboard",    icon: "home",         label: "今日看板" },
     { id: "weekly",       icon: "calendar",     label: "周报" },
     { id: "monthly",      icon: "chart-up",     label: "月报" },
-    { id: "purchasePlan", icon: "package",      label: "进货计划" },
+    { id: "calendar",     icon: "calendar-2",   label: "日历" },
   ];
   return `
     <aside class="sidebar">
@@ -1640,7 +1903,7 @@ function renderSidebar() {
 }
 
 function renderTopbar() {
-  const titles = { dashboard: "今日看板", weekly: "周报", monthly: "月报", purchasePlan: "进货计划", store: "我的店铺" };
+  const titles = { dashboard: "今日看板", weekly: "周报", monthly: "月报", calendar: "日历", store: "我的店铺" };
   return `
     <div class="topbar">
       <div class="crumbs">
@@ -1662,34 +1925,45 @@ function renderDashboard() {
   const slowCount = MOCK.products.filter(p => p.daysSinceSale >= 3).length;
 
   return `
-    <div class="page-head">
+    <div class="hero-banner rise-in">
+      <div class="hero-text">
+        <div class="hero-eyebrow">谷雨 · 今日经营</div>
+        <h1>${(state.owner || '林老板')}<span class="accent">，</span>今日的<span class="accent">谷子店</span>一切向好</h1>
+        <div class="sub">先处理 ${slowCount} 条库存风险，再看 IP 异动与补货计划 — 数据已实时同步到周报与月报。</div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <img src="imgs/anime/11-blue-sky-green.png" alt="" />
+      </div>
+    </div>
+
+    <div class="page-head" style="margin-bottom:14px;">
       <div>
-        <h1>今日看板</h1>
-        <div class="sub">林老板好，今天的店铺情况一目了然，先处理风险再看经营建议。</div>
+        <h1 style="font-size:18px;">核心指标</h1>
+        <div class="sub">点击可下钻到订单明细、库存占比等深度数据。</div>
       </div>
     </div>
 
     <div class="stats-grid">
       <div class="stat-card clickable" data-modal="order-detail">
         <div class="label">今日订单数 <span class="tag" style="margin-left:6px;">可点击</span></div>
-        <div class="value num">${todayOrders}</div>
+        <div class="value num count-up" data-count="${todayOrders}" data-format="int">${todayOrders}</div>
         <div class="delta up">↑ 较昨日 +3 单</div>
         <div class="arrow">查看详情 →</div>
       </div>
       <div class="stat-card clickable" data-modal="inventory-detail">
         <div class="label">库存总价值 <span class="tag" style="margin-left:6px;">可点击</span></div>
-        <div class="value num">${fmt.money(inventoryValue)}</div>
+        <div class="value num count-up" data-count="${Math.round(inventoryValue)}" data-format="money">${fmt.money(inventoryValue)}</div>
         <div class="delta">共 ${MOCK.products.length} 个 SKU</div>
         <div class="arrow">查看占比 →</div>
       </div>
       <div class="stat-card">
         <div class="label">滞销预警 SKU</div>
-        <div class="value num">${slowCount}</div>
+        <div class="value num count-up" data-count="${slowCount}" data-format="int">${slowCount}</div>
         <div class="delta down">3 天未售 ${MOCK.products.filter(p=>p.daysSinceSale>=3 && p.daysSinceSale<7).length} 个 · 7 天未售 ${MOCK.products.filter(p=>p.daysSinceSale>=7).length} 个</div>
       </div>
       <div class="stat-card">
         <div class="label">今日销售额</div>
-        <div class="value num">${fmt.money(todayRevenue)}</div>
+        <div class="value num count-up" data-count="${Math.round(todayRevenue)}" data-format="money">${fmt.money(todayRevenue)}</div>
         <div class="delta up">↑ 较昨日 +12.4%</div>
       </div>
     </div>
@@ -1725,18 +1999,12 @@ function renderDashboard() {
         </div>
         <div class="alert-list">
           ${MOCK.ipTrends.map((t, i) => {
-            const applied = state.purchasePlan.some(p => p.ip === t.ip);
             return `
             <div class="alert-item">
               <div class="ico ${t.delta > 0 ? 'success' : 'warning'}" data-modal="ip-trend" data-idx="${i}" style="cursor:pointer;">${t.delta > 0 ? icon("chart-up","ico-md") : icon("chart-down","ico-md")}</div>
               <div class="body" data-modal="ip-trend" data-idx="${i}" style="cursor:pointer;flex:1;min-width:0;">
                 <div class="title">${t.ip} <span class="tag ${t.delta>0?'tag-success':'tag-warning'}" style="margin-left:6px;">${t.delta>0?"+":""}${t.delta}%</span></div>
                 <div class="desc">${t.reason}</div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-                ${applied
-                  ? `<span class="tag tag-info" style="font-size:10px;">✓ 已加入进货计划</span>`
-                  : `<button class="btn btn-primary btn-sm" data-ip-apply="${t.ip}" data-heat="${t.delta}">+ 应用到进货计划</button>`}
               </div>
             </div>
             `;
@@ -1748,15 +2016,16 @@ function renderDashboard() {
     <div class="panel">
       <div class="panel-head">
         <h3><img src="icons/icon-lightbulb.png" class="ico ico-lg" alt="" /> 经营小建议</h3>
-        <div class="meta">基于近 30 天数据 · 谷雨 AI 生成</div>
+        <div class="meta">基于近 30 天数据 · 谷雨 AI 生成 · 点击「加入日历」可排期</div>
       </div>
       <div class="panel-grid-3" style="gap:14px;">
-        ${MOCK.advice.map(a => `
+        ${MOCK.advice.map((a, i) => `
           <div class="alert-item" style="background:#fff;">
             <div class="ico ${a.level}">${icon(a.icon, "ico-md")}</div>
             <div class="body">
               <div class="title">${a.title}</div>
               <div class="desc">${a.desc}</div>
+              <button class="btn btn-sm" data-advice-add="${i}" style="margin-top:8px;">+ 加入日历</button>
             </div>
           </div>
         `).join("")}
@@ -1767,13 +2036,10 @@ function renderDashboard() {
 
 /* ----- 今日待办面板 ----- */
 function renderTodosPanel() {
-  // 按优先级排序（3=紧急 最高 -> 1=普通 最低），未完成优先
-  const sorted = [...state.todos].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
-    return b.priority - a.priority;
-  });
-  const doneCount = state.todos.filter(t => t.done).length;
-  const total = state.todos.length;
+  // 动态从日历"今日"项生成 todos（不在 state 里持久化 todo 本身）
+  const todos = getTodayTodos();
+  const doneCount = todos.filter(t => t.done).length;
+  const total = todos.length;
 
   if (total === 0) {
     return `
@@ -1783,7 +2049,10 @@ function renderTodosPanel() {
           <div class="meta">手把手教学 · 按重要性划分</div>
         </div>
         <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">
-          ✓ 暂无待办，去 <a href="#" data-nav="monthly" style="color:var(--primary);">月报</a> 制定你的清仓 / 补货计划吧
+          ✓ 今日还没有需要处理的事项。<br/>
+          去 <a href="#" data-nav="weekly" style="color:var(--primary);font-weight:500;">周报</a> 采纳补货计划
+          · <a href="#" data-nav="monthly" style="color:var(--primary);font-weight:500;">月报</a> 采纳进货 / 清仓方案<br/>
+          <span style="font-size:12px;">采纳后谷雨会按 AI 排期自动放到 <a href="#" data-nav="calendar" style="color:var(--primary);">日历</a>，今日项会出现在这里。</span>
         </div>
       </div>
     `;
@@ -1793,10 +2062,10 @@ function renderTodosPanel() {
     <div class="panel">
       <div class="panel-head">
         <h3><img src="icons/icon-memo.png" class="ico ico-lg" alt="" /> 今日待办 <span class="tag" style="margin-left:6px;">已完成 ${doneCount} / ${total}</span></h3>
-        <div class="meta">手把手教学 · 紧急/中等/普通 三档优先级</div>
+        <div class="meta">来自日历的今日项 · 紧急/中等/普通 三档优先级</div>
       </div>
       <div class="todo-list">
-        ${sorted.map(t => `
+        ${todos.map(t => `
           <div class="todo-item ${t.done ? 'done' : ''}" data-priority="${t.priority}" data-todo="${t.id}">
             <div class="todo-bar"></div>
             <div>
@@ -1807,13 +2076,13 @@ function renderTodosPanel() {
               </div>
               <div class="todo-meta">
                 <span class="todo-source">📍 ${t.sourceLabel}</span>
-                ${t.affects.length > 0 ? `<span>· 涉及 ${t.affects.join('、')}</span>` : ''}
-                ${t.ddl ? `<span>· DDL ${t.ddl}</span>` : ''}
-                <span>· ${t.steps.length} 步</span>
+                ${t.affects && t.affects.length > 0 ? `<span>· 涉及 ${t.affects.join('、')}</span>` : ''}
+                ${t.steps && t.steps.length > 0 ? `<span>· ${t.steps.length} 步</span>` : '<span>· 见 <a href="#" data-nav="calendar" style="color:var(--primary);">日历详情</a></span>'}
               </div>
             </div>
             <div class="todo-actions">
-              <button class="btn btn-sm" data-todo-detail="${t.id}">查看教学</button>
+              ${t.steps && t.steps.length > 0 ? `<button class="btn btn-sm" data-todo-detail="${t.id}">查看教学</button>` : ''}
+              <button class="btn btn-sm" data-cal-jump="${t.calId}">查看日历</button>
               ${t.done
                 ? `<button class="btn btn-ghost btn-sm" data-todo-reopen="${t.id}">↺ 重启</button>`
                 : `<button class="btn btn-primary btn-sm" data-todo-done="${t.id}">✓ 完成</button>`
@@ -1933,8 +2202,8 @@ function renderWeeklyGenerated(t1, t2, t3, tierValue) {
 
     <div class="panel">
       <div class="panel-head">
-        <h3><img src="icons/icon-download.png" class="ico ico-lg" alt="" /> 下周进货清单（点击查看推荐依据）</h3>
-        <div class="meta">基于热度异动 + 滞销补缺 + 季节档期</div>
+        <h3><img src="icons/icon-download.png" class="ico ico-lg" alt="" /> 本周补货计划</h3>
+        <div class="meta">基于本周热度异动 + 滞销补缺 · 采纳后会在「月报 → 进货计划」中显示</div>
       </div>
       <div class="purchase-list">
         ${[
@@ -1943,19 +2212,26 @@ function renderWeeklyGenerated(t1, t2, t3, tierValue) {
           { rank: 3, ip: "孤独摇滚",     name: "后藤一里 谷子套装",     qty: 15, reason: "持续热卖 SKU，本周已售 6 件，断货风险" },
           { rank: 4, ip: "蓝色监狱",     name: "凪诚士郎 亚克力（新色）", qty: 20, reason: "角色稳居热度榜 Top 3，现有库存仅 6 件" },
           { rank: 5, ip: "咒术回战",     name: "五条悟 拍立得套装",     qty: 12, reason: "经典款仍有稳定需求，需补充断货 SKU" },
-        ].map(p => `
-          <div class="purchase-item clickable" data-modal="purchase-reason" data-rank="${p.rank}">
+        ].map(p => {
+          const accepted = state.purchasePlan.some(x => x.source === 'weekly' && x.ip === p.ip && x.product === p.name);
+          return `
+          <div class="purchase-item ${accepted ? 'accepted' : ''}" data-purchase-rank="${p.rank}">
             <div class="pi-rank">${p.rank}</div>
-            <div>
+            <div style="flex:1;min-width:0;">
               <div class="pi-name">${p.name}</div>
               <div class="pi-ip">${p.ip} · 预计到货 ${new Date(Date.now() + 5*86400000).toLocaleDateString("zh-CN")}</div>
+              <div style="font-size:11px;color:var(--text-2);margin-top:4px;">${p.reason}</div>
             </div>
             <div class="pi-side">
               <div class="pi-qty num">${p.qty}</div>
-              <div class="tag" style="margin-top:4px;">查看依据</div>
+              ${accepted
+                ? `<span class="tag tag-info" style="margin-top:4px;">✓ 已采纳</span>`
+                : `<button class="btn btn-primary btn-sm" data-restock-accept="${p.rank}" data-ip="${p.ip}" data-product="${p.name}" data-qty="${p.qty}" data-reason="${p.reason}">✓ 采纳</button>`}
+              <button class="btn btn-ghost btn-sm" style="margin-top:4px;" data-modal="purchase-reason" data-rank="${p.rank}">查看依据</button>
             </div>
           </div>
-        `).join("")}
+        `;
+        }).join("")}
       </div>
     </div>
   `;
@@ -2022,8 +2298,10 @@ function renderMonthly() {
         <div class="meta">基于热度 + 销售 + 库存周转</div>
       </div>
       <div class="lifecycle-list">
-        ${MOCK.lifecycle.sort((a,b)=>b.score-a.score).map(l => `
-          <div class="lifecycle-item">
+        ${MOCK.lifecycle.sort((a,b)=>b.score-a.score).map(l => {
+          const trendIdx = MOCK.ipTrends.findIndex(t => t.ip === l.ip);
+          return `
+          <div class="lifecycle-item" data-modal="ip-trend" data-idx="${trendIdx >= 0 ? trendIdx : 0}" data-ip="${l.ip}" style="cursor:pointer;">
             <div class="li-ip">${l.ip}<small>${l.note}</small></div>
             <div>
               ${l.stage === "成长" ? '<span class="tag tag-success">成长期</span>' :
@@ -2032,30 +2310,37 @@ function renderMonthly() {
             </div>
             <div class="li-bar"><span style="width:${l.score}%; background:${l.stage==='成长'?'var(--success)':l.stage==='成熟'?'var(--info)':'var(--danger)'}"></span></div>
             <div class="num" style="text-align:right;font-weight:600;">${l.score}<small style="color:var(--text-muted);font-weight:400;">/100</small></div>
+            <div style="text-align:right;font-size:11px;color:var(--text-muted);grid-column:1/-1;">→ 点击查看趋势分析</div>
           </div>
-        `).join("")}
+        `}).join("")}
       </div>
     </div>
 
     <div class="panel">
       <div class="panel-head">
-        <h3><img src="icons/icon-download.png" class="ico ico-lg" alt="" /> 本月进货建议</h3>
-        <div class="meta">基于 IP 生命周期 + 季节档期 · 6 条建议</div>
+        <h3><img src="icons/icon-download.png" class="ico ico-lg" alt="" /> 进货计划</h3>
+        <div class="meta">${state.purchasePlan.filter(x => x.source === 'monthly').length > 0 ? `已采纳 ${state.purchasePlan.filter(x => x.source === 'monthly').length} 项 · ` : ''}基于 IP 生命周期 + 季节档期 · 6 条建议</div>
       </div>
       <div class="monthly-purchase">
-        ${MOCK.monthlyPurchase.map(p => `
-          <div class="mp-item">
+        ${MOCK.monthlyPurchase.map(p => {
+          const accepted = state.purchasePlan.some(x => x.source === 'monthly' && x.ip === p.ip && x.product === p.name);
+          return `
+          <div class="mp-item ${accepted ? 'accepted' : ''}">
             <div class="mp-rank">${p.rank}</div>
-            <div>
+            <div style="flex:1;min-width:0;">
               <div class="mp-name">${p.name} ${p.stage === "成长" ? '<span class="tag tag-success" style="margin-left:6px;">成长期</span>' : '<span class="tag tag-info" style="margin-left:6px;">成熟期</span>'}</div>
               <div class="mp-meta">${p.ip} · ${p.reason}</div>
             </div>
             <div class="mp-side">
               <div class="mp-qty num">+${p.qty}</div>
               <div class="mp-impact">${p.impact}</div>
+              ${accepted
+                ? `<span class="tag tag-info" style="margin-top:6px;">✓ 已加入进货计划</span>`
+                : `<button class="btn btn-primary btn-sm" style="margin-top:6px;" data-monthly-accept="${p.rank}" data-ip="${p.ip}" data-product="${p.name}" data-qty="${p.qty}" data-reason="${p.reason}">+ 加入进货计划</button>`}
             </div>
           </div>
-        `).join("")}
+        `;
+        }).join("")}
       </div>
     </div>
 
@@ -2081,132 +2366,188 @@ function renderMonthly() {
         `).join("")}
       </div>
     </div>
+
+    ${renderPurchaseListSection()}
   `;
 }
 
-/* ----- 进货计划 ----- */
-function renderPurchasePlan() {
-  const plan = state.purchasePlan || [];
-  // 预测链展示（用 MOCK.ipTrends + MOCK.products 跑预测模型）
-  const trends = MOCK.ipTrends || [];
-  // 上升期 IP
-  const upIps = trends.filter(t => t.delta > 0).map(t => t.ip);
-  const downIps = trends.filter(t => t.delta < 0).map(t => t.ip);
+/* ============================================================
+ * 进货 / 补货计划 已采纳清单
+ * 在月报底部显示（在「进货计划」section 后）
+ * 同时按 source 区分展示：weekly=周报补货 / monthly=月报进货
+ * ============================================================ */
+function renderPurchaseListSection() {
+  const weekly = state.purchasePlan.filter(p => p.source === 'weekly');
+  const monthly = state.purchasePlan.filter(p => p.source === 'monthly');
+
+  if (weekly.length === 0 && monthly.length === 0) {
+    return `
+      <div class="panel" style="text-align:center;padding:36px 20px;">
+        <img src="icons/icon-package.png" class="ico ico-2x" alt="" style="opacity:0.5;" />
+        <h3 style="font-size:15px;margin:12px 0 4px;color:var(--text-muted);">还没有采纳任何计划</h3>
+        <div style="color:var(--text-muted);font-size:12px;">去「周报」采纳补货推荐，或在「进货计划」里点 <strong style="color:var(--primary);">+ 加入进货计划</strong></div>
+      </div>
+    `;
+  }
+
+  const renderItem = (p) => `
+    <div class="purchase-item ${p.done ? 'done' : ''}">
+      <div class="pi-rank" style="width:32px;height:32px;font-size:13px;background:var(--green-soft);color:var(--green-dark);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">📦</div>
+      <div style="flex:1;min-width:0;">
+        <div class="pi-name">${p.product || p.ip}</div>
+        <div class="pi-ip">${p.ip} · ${p.qty} 个 · ${p.source === 'weekly' ? '周报补货' : '月报进货'}</div>
+        <div style="font-size:11px;color:var(--text-2);margin-top:4px;">${p.reason || ''}</div>
+      </div>
+      <div class="pi-side" style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        ${p.done
+          ? `<span class="tag tag-info">✓ 已下单</span>
+             <button class="btn btn-ghost btn-sm" data-plan-reopen="${p.id}">↺ 重启</button>`
+          : `<span class="tag tag-warning">待执行</span>
+             <button class="btn btn-primary btn-sm" data-plan-done="${p.id}">✓ 已下单</button>`}
+        <button class="btn btn-ghost btn-sm" data-plan-del="${p.id}">删除</button>
+      </div>
+    </div>
+  `;
+
+  return `
+    <div class="panel" style="background:linear-gradient(135deg, var(--green-soft) 0%, #fff 100%);">
+      <div class="panel-head">
+        <h3><img src="icons/icon-package.png" class="ico ico-lg" alt="" /> 已采纳的计划 <span class="tag tag-success" style="margin-left:6px;">${weekly.length + monthly.length} 项</span></h3>
+        <div class="meta">来自周报补货 ${weekly.length} 项 + 月报进货 ${monthly.length} 项</div>
+      </div>
+      ${weekly.length > 0 ? `
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">📦 周报补货</div>
+        <div class="purchase-list" style="margin-bottom:18px;">${weekly.map(renderItem).join('')}</div>
+      ` : ''}
+      ${monthly.length > 0 ? `
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">🛒 月报进货</div>
+        <div class="purchase-list">${monthly.map(renderItem).join('')}</div>
+      ` : ''}
+    </div>
+  `;
+}
+
+/* ----- 日历 -----  实时日历：补货/进货/清仓/活动按 AI 排期 + 用户可编辑 */
+function renderCalendar() {
+  // 本月第一天 / 总天数
+  const [yy, mm] = (state.calMonth || new Date().toISOString().slice(0, 7)).split("-").map(Number);
+  const firstDay = new Date(yy, mm - 1, 1);
+  const daysInMonth = new Date(yy, mm, 0).getDate();
+  const startWeekday = firstDay.getDay(); // 0 = Sun
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  // 本月所有事件
+  const monthPrefix = `${yy}-${String(mm).padStart(2, "0")}`;
+  const monthEvents = state.calendar
+    .filter(c => c.date.startsWith(monthPrefix))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // 按天聚合
+  const eventsByDate = {};
+  monthEvents.forEach(c => {
+    (eventsByDate[c.date] = eventsByDate[c.date] || []).push(c);
+  });
+
+  // 单元格
+  const cells = [];
+  // 上月补位
+  for (let i = 0; i < startWeekday; i++) cells.push({ blank: true });
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${monthPrefix}-${String(d).padStart(2, "0")}`;
+    cells.push({ date: dateStr, day: d, isToday: dateStr === todayStr, events: eventsByDate[dateStr] || [] });
+  }
+
+  // 类型 → 颜色 / 标签
+  const typeMap = {
+    restock:  { tag: 'tag-success', label: '补货', dot: 'var(--success)' },
+    purchase: { tag: 'tag-warning', label: '进货', dot: 'var(--accent)' },
+    clearance:{ tag: 'tag-danger',  label: '清仓', dot: 'var(--danger)' },
+    activity: { tag: 'tag-info',    label: '活动', dot: 'var(--info)' },
+  };
 
   return `
     <div class="page-head">
       <div>
-        <h1>进货计划</h1>
-        <div class="sub">从周报 / 月报应用的进货建议 · 谷雨 AI 预测链驱动</div>
+        <h1>实时日历</h1>
+        <div class="sub">${(state.owner || '林老板')} 采纳的补货 / 进货 / 清仓 / 活动 — 按 AI 数据分析排期，可手动编辑</div>
       </div>
-      <div class="head-actions">
-        ${plan.length > 0 ? `<span class="tag tag-success">已规划 ${plan.length} 项</span>` : ''}
-        ${plan.length > 0 ? `<button class="btn" data-action="clear-purchase-plan">清空</button>` : ''}
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn btn-sm" id="cal-prev">← 上月</button>
+        <div class="badge-pill"><span class="dot"></span>${yy} 年 ${mm} 月</div>
+        <button class="btn btn-sm" id="cal-next">下月 →</button>
       </div>
     </div>
 
-    ${plan.length === 0 ? `
-      <div class="panel" style="text-align:center;padding:60px 20px;">
-        <img src="icons/icon-package.png" class="ico ico-3x" alt="" style="opacity:0.6;" />
-        <h3 style="font-size:16px;margin:14px 0 6px;">还没有进货计划</h3>
-        <div style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">去「周报」→「IP 热度异动」中点击「+ 应用到进货计划」即可加入</div>
-        <button class="btn btn-primary" data-nav="weekly">前往周报 →</button>
-      </div>
-    ` : `
-      <div class="panel">
-        <div class="panel-head">
-          <h3><img src="icons/icon-package.png" class="ico ico-lg" alt="" /> 已应用的进货建议</h3>
-          <div class="meta">按热度 / 库存 / 利润 优先级排序</div>
-        </div>
-        <div class="purchase-list">
-          ${plan.sort((a,b) => (b.heatDelta || 0) - (a.heatDelta || 0)).map((p, i) => `
-            <div class="purchase-item ${p.done ? 'done' : ''}" data-purchase-id="${p.id}">
-              <div class="purchase-num">${i + 1}</div>
-              <div style="flex:1;min-width:0;">
-                <div class="purchase-title">
-                  <span class="tag ${(p.heatDelta||0) > 0 ? 'tag-success' : 'tag-warning'}">${(p.heatDelta||0) > 0 ? '热度↑' : '热度↓'}</span>
-                  <strong>${p.ip}</strong>
-                  ${p.done ? '<span class="tag tag-info" style="margin-left:4px;">已下单</span>' : ''}
-                </div>
-                <div class="purchase-meta">${p.reason || '基于 IP 热度建议'}</div>
-                ${p.suggestedQty ? `<div class="purchase-qty">建议数量：<strong>${p.suggestedQty}</strong> 个 · 预计投入 <strong>¥${fmt.money((p.suggestedQty || 0) * (p.cost || 0))}</strong></div>` : ''}
-              </div>
-              <div class="purchase-actions">
-                ${p.done
-                  ? `<button class="btn btn-ghost btn-sm" data-purchase-reopen="${p.id}">↺ 重启</button>`
-                  : `<button class="btn btn-primary btn-sm" data-purchase-done="${p.id}">✓ 已下单</button>`}
-                <button class="btn btn-ghost btn-sm" data-purchase-del="${p.id}">删除</button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `}
+    <div class="cal-legend">
+      <span><span class="dot" style="background:var(--success)"></span> 周报补货</span>
+      <span><span class="dot" style="background:var(--accent)"></span> 月报进货</span>
+      <span><span class="dot" style="background:var(--danger)"></span> 清仓方案</span>
+      <span><span class="dot" style="background:var(--info)"></span> 活动建议</span>
+    </div>
 
-    <div class="panel" style="background:linear-gradient(135deg, var(--green-soft) 0%, #fff 100%);">
+    <div class="cal-grid">
+      <div class="cal-head-cell">日</div>
+      <div class="cal-head-cell">一</div>
+      <div class="cal-head-cell">二</div>
+      <div class="cal-head-cell">三</div>
+      <div class="cal-head-cell">四</div>
+      <div class="cal-head-cell">五</div>
+      <div class="cal-head-cell">六</div>
+      ${cells.map(c => {
+        if (c.blank) return `<div class="cal-cell blank"></div>`;
+        return `
+          <div class="cal-cell ${c.isToday ? 'today' : ''}">
+            <div class="cal-cell-head">
+              <span class="cal-day">${c.day}</span>
+              ${c.isToday ? '<span class="tag tag-success" style="font-size:10px;padding:1px 6px;">今日</span>' : ''}
+            </div>
+            ${c.events.slice(0, 2).map(ev => {
+              const t = typeMap[ev.type] || typeMap.activity;
+              return `<div class="cal-event ${ev.done ? 'done' : ''}" data-cal-toggle="${ev.id}" title="${ev.ip || ''} · ${ev.title}（点击切换完成）">
+                <span class="dot" style="background:${t.dot}"></span>
+                <span class="cal-ev-text">${t.label} · ${ev.title}</span>
+              </div>`;
+            }).join('')}
+            ${c.events.length > 2 ? `<div class="cal-more">+${c.events.length - 2} 更多</div>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="panel" style="margin-top:24px;">
       <div class="panel-head">
-        <h3><img src="icons/icon-chart.png" class="ico ico-lg" alt="" /> 谷雨 AI · 进货预测链</h3>
-        <div class="meta">从情报到清单 · 6 步全链路</div>
+        <h3><img src="icons/icon-calendar.png" class="ico ico-lg" alt="" /> 本月事件清单</h3>
+        <div class="meta">共 ${monthEvents.length} 项 · 今日 ${todayStr}</div>
       </div>
-      <div class="pred-chain">
-        <div class="pred-step">
-          <div class="pred-num">1</div>
-          <div class="pred-content">
-            <div class="pred-title">IP 情报输入</div>
-            <div class="pred-desc">从贴吧 / 小红书 / 微博 / 淘宝 抓取每日 ${trends.length} 个 IP 热度信号</div>
-            <div class="pred-trend">
-              ${trends.map(t => `<span class="tag ${t.delta > 0 ? 'tag-success' : 'tag-warning'}" style="margin:2px;">${t.ip} ${t.delta > 0 ? '+' : ''}${t.delta}</span>`).join('')}
-            </div>
-          </div>
+      ${monthEvents.length === 0 ? `
+        <div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">
+          📭 本月还没有事件。<br/>
+          去 <a href="#" data-nav="weekly" style="color:var(--primary);font-weight:500;">周报</a> 采纳补货 ·
+          <a href="#" data-nav="monthly" style="color:var(--primary);font-weight:500;">月报</a> 采纳进货 / 清仓方案<br/>
+          <span style="font-size:12px;">采纳后 AI 会按热度 / 紧急程度自动排期到日历，今日项会同步到 <a href="#" data-nav="dashboard" style="color:var(--primary);">今日看板</a>。</span>
         </div>
-        <div class="pred-arrow">↓</div>
-        <div class="pred-step">
-          <div class="pred-num">2</div>
-          <div class="pred-content">
-            <div class="pred-title">多维热度量化</div>
-            <div class="pred-desc">搜索量 / 讨论量 / 销售量 / 二创量 → 0-200 分热度指数</div>
-            <div class="pred-trend">${upIps.length} 个上升 · ${downIps.length} 个下行</div>
-          </div>
+      ` : `
+        <div class="cal-list">
+          ${monthEvents.map(ev => {
+            const t = typeMap[ev.type] || typeMap.activity;
+            return `
+              <div class="cal-row ${ev.done ? 'done' : ''}">
+                <div class="cal-row-date">
+                  <span class="dot" style="background:${t.dot}"></span>
+                  <strong>${ev.date}</strong>
+                  <span class="tag ${t.tag}" style="margin-left:4px;">${t.label}</span>
+                </div>
+                <div class="cal-row-title">${ev.title}${ev.ip ? `<span style="color:var(--text-muted);font-weight:400;"> · ${ev.ip}</span>` : ''}</div>
+                <div class="cal-row-actions">
+                  <input type="date" value="${ev.date}" data-cal-edit="${ev.id}" class="form-input" style="width:140px;padding:4px 8px;font-size:12px;" />
+                  <button class="btn btn-sm" data-cal-toggle="${ev.id}">${ev.done ? '↺ 重启' : '✓ 完成'}</button>
+                  <button class="btn btn-ghost btn-sm" data-cal-del="${ev.id}">删除</button>
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
-        <div class="pred-arrow">↓</div>
-        <div class="pred-step">
-          <div class="pred-num">3</div>
-          <div class="pred-content">
-            <div class="pred-title">热度生命周期预测</div>
-            <div class="pred-desc">根据 7 天曲线判断：导入期 / 上升期 / 巅峰期 / 衰退期 / 休眠期</div>
-            <div class="pred-trend">
-              ${trends.map(t => `<span style="font-size:11px;color:var(--text-2);margin-right:8px;">${t.ip}：${t.delta > 5 ? '上升期' : t.delta < -5 ? '衰退期' : '稳定期'}</span>`).join('')}
-            </div>
-          </div>
-        </div>
-        <div class="pred-arrow">↓</div>
-        <div class="pred-step">
-          <div class="pred-num">4</div>
-          <div class="pred-content">
-            <div class="pred-title">安全库存模型</div>
-            <div class="pred-desc">安全库存 = 上周销量 × 2 × 生命周期系数</div>
-            <div class="pred-trend">芙莉莲 30 / 孤独摇滚 25 / 蓝色监狱 20（举例）</div>
-          </div>
-        </div>
-        <div class="pred-arrow">↓</div>
-        <div class="pred-step">
-          <div class="pred-num">5</div>
-          <div class="pred-content">
-            <div class="pred-title">利润-风险模拟</div>
-            <div class="pred-desc">补货 N 件 → 预期毛利 - 滞销概率 × 损失 → 期望收益</div>
-            <div class="pred-trend">每次进货决策都跑 1000 次蒙特卡洛模拟</div>
-          </div>
-        </div>
-        <div class="pred-arrow">↓</div>
-        <div class="pred-step final">
-          <div class="pred-num">6</div>
-          <div class="pred-content">
-            <div class="pred-title">最终采购清单 <span class="tag tag-success" style="margin-left:6px;">输出</span></div>
-            <div class="pred-desc">每行：IP / 商品 / 数量 / 单价 / 总成本 / 期望毛利 / 风险等级</div>
-            <div class="pred-trend">${upIps.length > 0 ? `本次建议优先进货：${upIps.join('、')}` : '当前无明显上升期 IP'}</div>
-          </div>
-        </div>
-      </div>
+      `}
     </div>
   `;
 }
@@ -2226,9 +2567,12 @@ function renderStore() {
     <div class="page-head">
       <div>
         <h1>我的店铺</h1>
-        <div class="sub">店铺基础信息 · 与 wizard 实时同步</div>
+        <div class="sub">店铺基础信息 · 单据录入 · 库存自动调整</div>
       </div>
-      ${editing ? '' : `<button class="btn" data-action="edit-store"><img src="icons/icon-edit.png" class="ico ico-sm" alt="" /> 编辑</button>`}
+      <div style="display:flex;gap:8px;">
+        ${editing ? '' : `<button class="btn btn-primary" data-action="add-receipt"><img src="icons/icon-plus.png" class="ico ico-sm" alt="" /> + 添加单据</button>`}
+        ${editing ? '' : `<button class="btn" data-action="edit-store"><img src="icons/icon-edit.png" class="ico ico-sm" alt="" /> 编辑</button>`}
+      </div>
     </div>
 
     <div class="store-info">
@@ -2349,22 +2693,81 @@ function bindApp() {
       openModal("todo-detail", el.dataset.todoDetail);
     });
   });
+  // todo id 现在是 "todo-cXXXX"，calId 存的是 "cXXXX"
   $$("[data-todo-done]").forEach(el => {
     el.addEventListener("click", e => {
       e.stopPropagation();
-      const todo = state.todos.find(t => t.id === el.dataset.todoDone);
-      if (todo) todo.done = true;
+      const todoId = el.dataset.todoDone;
+      const todos = getTodayTodos();
+      const todo = todos.find(t => t.id === todoId);
+      if (todo && todo.calId) {
+        const cal = state.calendar.find(c => c.id === todo.calId);
+        if (cal) cal.done = true;
+      }
       render();
     });
   });
   $$("[data-todo-reopen]").forEach(el => {
     el.addEventListener("click", e => {
       e.stopPropagation();
-      const todo = state.todos.find(t => t.id === el.dataset.todoReopen);
-      if (todo) todo.done = false;
+      const todoId = el.dataset.todoReopen;
+      const todos = getTodayTodos();
+      const todo = todos.find(t => t.id === todoId);
+      if (todo && todo.calId) {
+        const cal = state.calendar.find(c => c.id === todo.calId);
+        if (cal) cal.done = false;
+      }
       render();
     });
   });
+  // 看板"查看日历"按钮：跳到日历页
+  $$("[data-cal-jump]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      navigate("calendar");
+    });
+  });
+  // 看板"经营小建议" → 加到日历
+  $$("[data-advice-add]").forEach(el => el.addEventListener("click", e => {
+    e.stopPropagation();
+    const idx = parseInt(el.dataset.adviceAdd, 10);
+    const a = MOCK.advice[idx];
+    if (!a) return;
+    addActivityToCalendar({ title: a.title, ip: '', daysLater: 3 });
+  }));
+  // 日历翻页
+  const calPrev = $("#cal-prev");
+  const calNext = $("#cal-next");
+  if (calPrev) calPrev.addEventListener("click", () => {
+    const [y, m] = state.calMonth.split("-").map(Number);
+    const d = new Date(y, m - 2, 1);
+    state.calMonth = d.toISOString().slice(0, 7);
+    render();
+  });
+  if (calNext) calNext.addEventListener("click", () => {
+    const [y, m] = state.calMonth.split("-").map(Number);
+    const d = new Date(y, m, 1);
+    state.calMonth = d.toISOString().slice(0, 7);
+    render();
+  });
+  // 日历页：编辑日期 / 删除 / 完成
+  $$("[data-cal-edit]").forEach(el => el.addEventListener("change", e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.calEdit;
+    const newDate = e.currentTarget.value;
+    if (newDate) updateCalendarDate(id, newDate);
+  }));
+  $$("[data-cal-del]").forEach(el => el.addEventListener("click", e => {
+    e.stopPropagation();
+    if (confirm("确认从日历中移除此事件？")) removeCalendarEvent(e.currentTarget.dataset.calDel);
+  }));
+  $$("[data-cal-toggle]").forEach(el => el.addEventListener("click", e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.calToggle;
+    const c = state.calendar.find(x => x.id === id);
+    if (c) c.done = !c.done;
+    render();
+  }));
   // 点击 To Do 整行也可打开详情
   $$("[data-todo]").forEach(el => {
     el.addEventListener("click", () => openModal("todo-detail", el.dataset.todo));
@@ -2379,42 +2782,54 @@ function bindApp() {
     });
   });
 
-  // === 周报 IP 异动：应用到进货计划 ===
-  $$("[data-ip-apply]").forEach(b => {
-    b.addEventListener("click", e => {
-      e.stopPropagation();
-      const ip = e.currentTarget.dataset.ipApply;
-      const heat = parseInt(e.currentTarget.dataset.heat || "0");
-      addToPurchasePlan(ip, heat);
-    });
-  });
-
-  // === 进货计划：操作按钮 ===
-  $$("[data-purchase-done]").forEach(b => b.addEventListener("click", e => {
+  // === 周报：补货计划 — 「✓ 采纳」按钮 ===
+  $$("[data-restock-accept]").forEach(b => b.addEventListener("click", e => {
     e.stopPropagation();
-    const id = e.currentTarget.dataset.purchaseDone;
+    const t = e.currentTarget;
+    addToPurchasePlan({
+      source: 'weekly',
+      ip: t.dataset.ip,
+      product: t.dataset.product,
+      qty: parseInt(t.dataset.qty || '0', 10),
+      reason: t.dataset.reason,
+      heatDelta: 0,
+    });
+  }));
+
+  // === 月报：进货计划 — 「+ 加入进货计划」按钮 ===
+  $$("[data-monthly-accept]").forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    const t = e.currentTarget;
+    addToPurchasePlan({
+      source: 'monthly',
+      ip: t.dataset.ip,
+      product: t.dataset.product,
+      qty: parseInt(t.dataset.qty || '0', 10),
+      reason: t.dataset.reason,
+      heatDelta: 0,
+    });
+  }));
+
+  // === 进货/补货计划：通用操作按钮（删除 / 已下单 / 重启） ===
+  $$("[data-plan-done]").forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.planDone;
     const it = state.purchasePlan.find(p => p.id === id);
     if (it) it.done = true;
     render();
   }));
-  $$("[data-purchase-reopen]").forEach(b => b.addEventListener("click", e => {
+  $$("[data-plan-reopen]").forEach(b => b.addEventListener("click", e => {
     e.stopPropagation();
-    const id = e.currentTarget.dataset.purchaseReopen;
+    const id = e.currentTarget.dataset.planReopen;
     const it = state.purchasePlan.find(p => p.id === id);
     if (it) it.done = false;
     render();
   }));
-  $$("[data-purchase-del]").forEach(b => b.addEventListener("click", e => {
+  $$("[data-plan-del]").forEach(b => b.addEventListener("click", e => {
     e.stopPropagation();
-    const id = e.currentTarget.dataset.purchaseDel;
+    const id = e.currentTarget.dataset.planDel;
     state.purchasePlan = state.purchasePlan.filter(p => p.id !== id);
     render();
-  }));
-  $$("[data-action='clear-purchase-plan']").forEach(b => b.addEventListener("click", e => {
-    if (confirm("清空所有进货计划？")) {
-      state.purchasePlan = [];
-      render();
-    }
   }));
 
   // === 我的店铺：编辑 ===
@@ -2449,28 +2864,129 @@ function bindApp() {
 }
 
 /* ============================================================
- * 进货计划：添加
+ * 进货 / 补货计划：通用添加
+ *   source: 'weekly' 周报补货 / 'monthly' 月报进货
  * ============================================================ */
-function addToPurchasePlan(ip, heatDelta) {
-  if (state.purchasePlan.some(p => p.ip === ip)) {
-    toast("「" + ip + "」已经在进货计划里了");
+function addToPurchasePlan({ source, ip, product, qty, reason, heatDelta, scheduledDate }) {
+  if (state.purchasePlan.some(p => p.source === source && p.ip === ip && p.product === product)) {
+    toast("「" + product + "」已经在" + (source === 'weekly' ? '周报补货' : '月报进货') + "里了");
     return;
   }
-  const trend = MOCK.ipTrends.find(t => t.ip === ip);
-  const suggestedQty = heatDelta > 0 ? 30 + Math.floor(Math.random() * 20) : 0;
+  // AI 智能排期：按 IP 热度优先级、距离今日天数定默认日期
+  const planId = 'p' + Date.now() + Math.floor(Math.random() * 1000);
+  const date = scheduledDate || aiSchedulePurchase(source, ip, product);
   state.purchasePlan.push({
-    id: 'p' + Date.now(),
+    id: planId,
+    source,
     ip,
-    product: '',
-    cost: 0,
-    suggestedQty,
+    product,
+    qty: qty || 0,
+    reason: reason || '',
     heatDelta: heatDelta || 0,
-    reason: trend ? trend.action : '基于 AI 分析建议',
-    source: '周报 IP 异动',
     createdAt: new Date().toISOString(),
     done: false,
+    scheduledDate: date,
   });
-  toast("✓ 「" + ip + "」已加入进货计划");
+  // 同步进日历（type=restock 周报补货，type=purchase 月报进货）
+  addCalendarEvent({
+    type: source === 'weekly' ? 'restock' : 'purchase',
+    title: (source === 'weekly' ? '补货 ' : '进货 ') + product + (qty ? ` × ${qty}` : ''),
+    ip, date, refId: planId, source: source === 'weekly' ? '周报' : '月报',
+  });
+  toast("✓ 「" + product + "」已加入" + (source === 'weekly' ? '周报补货' : '月报进货') + " · 日历已排期 " + date);
+  render();
+}
+
+/* AI 智能排期：进货 / 补货 — 根据紧急程度给出最佳日期 */
+function aiSchedulePurchase(source, ip, product) {
+  const today = new Date();
+  // 周报补货：默认今天（"今天下单"是补货动作本身）
+  if (source === 'weekly') {
+    return today.toISOString().slice(0, 10);
+  }
+  // 月报进货：根据热度 delta 决定
+  //   delta 大（>=35）= 今天（紧跟热度）
+  //   中等（20-35）= 1 天后
+  //   冷（<20）= 3 天后
+  let days = 3;
+  const trend = MOCK.ipTrends.find(t => t.ip === ip);
+  const heat = trend ? Math.abs(trend.delta) : 0;
+  if (heat >= 35) days = 0;
+  else if (heat >= 20) days = 1;
+  else days = 3;
+  const d = new Date(today.getTime() + days * 86400000);
+  return d.toISOString().slice(0, 10);
+}
+
+/* 把清仓方案 / 活动 加入日历 + 今日待办 */
+function addClearanceToCalendar(c) {
+  if (state.clearancePlan.some(x => x.id === c.id)) return false;
+  // AI 排期：紧急 0 天后（今天），严重 1 天后，观察 3 天后
+  const days = c.urgency === 3 ? 0 : c.urgency === 2 ? 1 : 3;
+  const date = new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+  state.clearancePlan.push({
+    id: c.id, source: 'monthly', urgency: c.urgency, title: c.title,
+    affects: c.affects, steps: c.steps, scheduledDate: date, createdAt: new Date().toISOString(), done: false,
+  });
+  addCalendarEvent({
+    type: 'clearance',
+    title: '清仓 ' + c.title,
+    ip: c.affects[0] || '',
+    date, refId: c.id, source: '月报', urgency: c.urgency, steps: c.steps,
+  });
+  return true;
+}
+
+/* 把"参加漫展"等活动加入日历（点击月报建议里的活动项时调用） */
+function addActivityToCalendar({ title, ip, daysLater, urgency }) {
+  const date = new Date(Date.now() + (daysLater || 3) * 86400000).toISOString().slice(0, 10);
+  addCalendarEvent({
+    type: 'activity',
+    title: title,
+    ip: ip || '',
+    date, refId: 'act-' + Date.now(), source: '月报',
+  });
+  toast('✓ 活动「' + title + '」已加入日历 ' + date);
+  render();
+}
+
+/* 通用：写入日历事件（按日期去重） */
+function addCalendarEvent({ type, title, ip, date, refId, source, urgency, steps }) {
+  if (state.calendar.some(c => c.refId === refId)) return;
+  state.calendar.push({
+    id: 'c' + Date.now() + Math.floor(Math.random() * 1000),
+    type, title, ip: ip || '', date, refId: refId || '', source: source || '手动',
+    urgency: urgency || 1, steps: steps || [], done: false, createdAt: new Date().toISOString(),
+  });
+}
+
+/* 更新日历事件日期（用户手动编辑） */
+function updateCalendarDate(id, newDate) {
+  const c = state.calendar.find(x => x.id === id);
+  if (!c) return;
+  c.date = newDate;
+  // 同步 purchasePlan
+  if (c.refId && c.refId.startsWith('p')) {
+    const p = state.purchasePlan.find(x => x.id === c.refId);
+    if (p) p.scheduledDate = newDate;
+  }
+  // 同步 clearancePlan
+  if (c.refId) {
+    const cl = state.clearancePlan.find(x => x.id === c.refId);
+    if (cl) cl.scheduledDate = newDate;
+  }
+  render();
+}
+
+/* 删除日历事件 */
+function removeCalendarEvent(id) {
+  const c = state.calendar.find(x => x.id === id);
+  if (!c) return;
+  state.calendar = state.calendar.filter(x => x.id !== id);
+  if (c.refId) {
+    state.purchasePlan = state.purchasePlan.filter(x => x.id !== c.refId);
+    state.clearancePlan = state.clearancePlan.filter(x => x.id !== c.refId);
+  }
   render();
 }
 
@@ -2550,11 +3066,85 @@ function askAI(question) {
 
   // 模拟 AI 思考（600ms）
   setTimeout(() => {
-    const ctx = { products: MOCK.products, ipTrends: MOCK.ipTrends, todos: state.todos };
+    const ctx = { products: MOCK.products, ipTrends: MOCK.ipTrends, todos: getTodayTodos() };
     const res = window.AIAdvisor.ask(question, ctx);
-    typingEl.innerHTML = formatAI(res.answer) + `<div class="msg-meta">${res.type} · ${new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}</div>`;
+    let html = formatAI(res.answer);
+    // 追加谷雨推荐方案（每个方案一个采纳按钮）
+    if (res.actionable && res.actionable.length > 0) {
+      html += `<div class="ai-actions">
+        <div class="ai-actions-title">📋 谷雨推荐方案 · 点击采纳 → 自动按紧急度排日历</div>
+        ${res.actionable.map((a, i) => `
+          <button class="ai-action-btn" data-ai-action="${i}">
+            <div class="aa-icon ${a.type}">${a.type === 'clearance' ? '🔥' : a.type === 'purchase' ? '📦' : '✨'}</div>
+            <div class="aa-body">
+              <div class="aa-label">${a.label}</div>
+              <div class="aa-sub">${a.sublabel || ''}</div>
+            </div>
+            <div class="aa-arrow">采纳 →</div>
+          </button>
+        `).join('')}
+      </div>`;
+    }
+    html += `<div class="msg-meta">${res.type} · ${new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}</div>`;
+    typingEl.innerHTML = html;
+    // 绑定按钮
+    if (res.actionable) {
+      typingEl.querySelectorAll('[data-ai-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.aiAction, 10);
+          adoptAIAction(res.actionable[idx], btn);
+        });
+      });
+    }
     messages.scrollTop = messages.scrollHeight;
   }, 600);
+}
+
+/* AI 推荐方案采纳：写入日历 + 今日待办 + 反馈到聊天 */
+function adoptAIAction(a, btn) {
+  if (!a) return;
+  if (a.type === 'clearance') {
+    // 创建一个清仓 plan
+    const plan = {
+      id: 'ai-' + a.key + '-' + Date.now(),
+      urgency: a.urgency || 2,
+      title: a.label.replace(/^采纳清仓\s*·\s*/, '清仓 '),
+      affects: a.ip ? [a.ip] : [],
+      steps: a.steps || [],
+    };
+    addClearanceToCalendar(plan);
+  } else if (a.type === 'purchase') {
+    addToPurchasePlan({
+      source: 'monthly',
+      ip: a.ip,
+      product: a.product || (a.ip + ' 进货'),
+      qty: a.qty || 30,
+      reason: a.sublabel || '',
+      heatDelta: a.heatDelta || 0,
+    });
+  } else if (a.type === 'activity') {
+    addActivityToCalendar({
+      title: a.title || a.label,
+      ip: a.ip,
+      daysLater: a.daysLater || 3,
+      urgency: a.urgency || 1,
+    });
+  }
+  // 按钮变灰 + 提示
+  if (btn) {
+    btn.classList.add('adopted');
+    btn.innerHTML = '<div class="aa-icon adopted">✓</div><div class="aa-body"><div class="aa-label">已采纳</div><div class="aa-sub">已加入日历 · 今日项同步到待办</div></div><div class="aa-arrow">→</div>';
+    btn.disabled = true;
+  }
+  // 在聊天里追加 AI 确认消息
+  const messages = $("#ai-messages");
+  if (messages) {
+    const confirm = document.createElement("div");
+    confirm.className = "ai-msg bot";
+    confirm.innerHTML = `✅ 已采纳「<strong>${a.label}</strong>」<br/>📅 已自动按紧急度加入日历 · 今日项会出现在<strong>今日看板 → 今日待办</strong>里。<br/><div class="msg-meta">${new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}</div>`;
+    messages.appendChild(confirm);
+    messages.scrollTop = messages.scrollHeight;
+  }
 }
 
 function formatAI(text) {
@@ -2647,14 +3237,85 @@ function bindModal(name, idx, overlay) {
     });
   }
   if (name === "add-receipt") {
+    // SKU select 联动：自动填 IP/商品名 + 显示库存预览
+    const skuSel = $("[name=skuId]", box);
+    const ipInp = $("[name=ip]", box);
+    const prodInp = $("[name=product]", box);
+    const qtyInp = $("[name=qty]", box);
+    const amountInp = $("[name=amount]", box);
+    const typeSel = $("[name=type]", box);
+    const preview = $("#receipt-sku-preview", box);
+    const previewText = $("#receipt-sku-preview-text", box);
+
+    function updatePreview() {
+      const opt = skuSel?.selectedOptions[0];
+      if (!opt || !opt.value) { preview.style.display = "none"; return; }
+      const type = typeSel.value;
+      const stock = parseInt(opt.dataset.stock || 0, 10);
+      const cost = parseInt(opt.dataset.cost || 0, 10);
+      const price = parseInt(opt.dataset.price || 0, 10);
+      const qty = parseInt(qtyInp.value || 0, 10);
+      let msg = "";
+      if (type === "purchase") {
+        const newStock = stock + qty;
+        const invest = cost * qty;
+        msg = `当前库存 <strong>${stock}</strong> → 进货 ${qty} 件后 <strong>${newStock}</strong> 件，投入 ¥${fmt.num(invest)}`;
+      } else if (type === "sale") {
+        const newStock = Math.max(0, stock - qty);
+        const revenue = price * qty;
+        msg = `当前库存 <strong>${stock}</strong> → 售出 ${qty} 件后 <strong>${newStock}</strong> 件，回款 ¥${fmt.num(revenue)}`;
+      } else if (type === "return") {
+        const newStock = stock + qty;
+        msg = `当前库存 <strong>${stock}</strong> → 退货回滚后 <strong>${newStock}</strong> 件`;
+      } else {
+        msg = `仅记录调拨信息，不调整库存`;
+      }
+      previewText.innerHTML = msg;
+      preview.style.display = "block";
+      // 自动填 IP / 商品名（如果用户没填）
+      if (ipInp && !ipInp.value) ipInp.value = opt.dataset.ip || "";
+      if (prodInp && !prodInp.value) prodInp.value = opt.dataset.name || "";
+    }
+    skuSel?.addEventListener("change", updatePreview);
+    typeSel?.addEventListener("change", updatePreview);
+    qtyInp?.addEventListener("input", updatePreview);
+    updatePreview();
+
     $("[data-submit-receipt]", box)?.addEventListener("click", () => {
       const date = $("[name=date]", box).value || new Date().toISOString().slice(0,10);
-      const ip = $("[name=ip]", box).value || "其他 IP";
-      const product = $("[name=product]", box).value || "未命名商品";
-      const qty = parseInt($("[name=qty]", box).value || "1", 10);
-      const amount = parseInt($("[name=amount]", box).value || "0", 10);
-      state.receipts.unshift({ date, ip, product, qty, amount });
+      const type = typeSel?.value || "purchase";
+      const skuId = skuSel?.value || "";
+      const ip = ipInp?.value || "其他 IP";
+      const product = prodInp?.value || "未命名商品";
+      const qty = parseInt(qtyInp?.value || "1", 10);
+      const amount = parseInt(amountInp?.value || "0", 10);
+      const note = $("[name=note]", box)?.value || "";
+      const typeLabel = { purchase: "📦 进货", sale: "💰 销售", return: "↩️ 退货", transfer: "🔁 调拨" }[type] || type;
+
+      // 写单据
+      state.receipts.unshift({ date, type, skuId, ip, product, qty, amount, note });
+
+      // 自动入库存 / 减库存
+      let stockMsg = "";
+      if (skuId) {
+        const sku = MOCK.products.find(p => String(p.id) === String(skuId));
+        if (sku) {
+          const before = sku.stock || 0;
+          if (type === "purchase") {
+            sku.stock = before + qty;
+            stockMsg = `，库存 ${before} → ${sku.stock}`;
+          } else if (type === "sale") {
+            sku.stock = Math.max(0, before - qty);
+            stockMsg = `，库存 ${before} → ${sku.stock}`;
+          } else if (type === "return") {
+            sku.stock = before + qty;
+            stockMsg = `，库存回滚 ${before} → ${sku.stock}`;
+          }
+        }
+      }
+
       closeModal();
+      toast(`✓ ${typeLabel}单据已录入：${ip} · ${product} × ${qty}${stockMsg}`);
       render();
     });
   }
@@ -2682,8 +3343,11 @@ function bindModal(name, idx, overlay) {
   if (name === "todo-detail") {
     $$("[data-todo-mark-done]", box).forEach(el => {
       el.addEventListener("click", () => {
-        const todo = state.todos.find(t => t.id === el.dataset.todoMarkDone);
-        if (todo) todo.done = !todo.done;
+        // todos 是动态生成的，id 形如 todo-cXXXX
+        const todoId = el.dataset.todoMarkDone;
+        const calId = todoId.replace(/^todo-/, "");
+        const c = state.calendar.find(x => x.id === calId);
+        if (c) c.done = !c.done;
         closeModal();
         render();
       });
@@ -2698,32 +3362,54 @@ function bindModal(name, idx, overlay) {
       });
     });
   }
-  // 月报清仓计划弹窗：确认加入看板
+  // 月报清仓计划弹窗：确认加入看板 + 日历
   if (name === "monthly-clearance-plan") {
     $$("[data-mc-confirm]", box).forEach(el => {
       el.addEventListener("click", () => {
         const c = MOCK.monthlyClearance.find(x => x.id === el.dataset.mcConfirm);
         if (!c) return;
-        // 创建一个 To Do 加入看板
-        const newTodo = {
-          id: "t" + Date.now(),
-          priority: c.urgency,
-          category: "滞销",
-          source: "月报",
-          sourceLabel: "7月月报 · " + c.title.split("·")[0].trim(),
-          title: c.title,
-          affects: c.affects,
-          ddl: new Date(Date.now() + (c.urgency === 3 ? 30 : c.urgency === 2 ? 20 : 15) * 86400000).toISOString().slice(0, 10),
-          done: false,
-          steps: c.steps
-        };
-        state.todos.unshift(newTodo);
+        const ok = addClearanceToCalendar(c);
         closeModal();
-        // 跳到看板
-        state.page = "dashboard";
+        if (ok) {
+          toast("✓ 「" + c.title + "」已加入日历 · " + (new Date(Date.now() + (c.urgency === 3 ? 1 : c.urgency === 2 ? 3 : 5) * 86400000).toISOString().slice(0, 10)));
+          state.page = "calendar";
+        } else {
+          toast("「" + c.title + "」已经在日历里了");
+        }
         render();
       });
     });
+  }
+
+  // 周报清仓方案弹窗：确认创建计划（写到日历 + 今日待办）
+  if (name === "clearance-plan") {
+    const btn = $("[data-cp-confirm]", box);
+    if (btn) {
+      btn.addEventListener("click", () => {
+        // 根据 state.selectedClearance (A/B/C) 决定 urgency
+        const sel = state.selectedClearance || 'B';
+        const urgency = sel === 'A' ? 3 : sel === 'B' ? 2 : 1;
+        const levelText = sel === 'A' ? '紧急' : sel === 'B' ? '严重' : '观察';
+        // 找到 MOCK 里的方案或自己造一个
+        const plan = {
+          id: 'wp-' + sel + '-' + Date.now(),
+          urgency,
+          title: `组合方案 ${sel}：${levelText}清仓（${MOCK.products.filter(p => p.daysSinceSale >= 3).length} 个 SKU）`,
+          affects: MOCK.products.filter(p => p.daysSinceSale >= 3).map(p => p.ip).filter((v, i, a) => a.indexOf(v) === i),
+          steps: [
+            { title: "盘点 SKU 与分级", body: "把 3+ 天未售的 SKU 单独归类，贴上 5/8 折标签；保留成本价内部记录" },
+            { title: "调整陈列", body: "把促销 SKU 放到门口主推位，与热门 SKU 摆放距离 ≤ 1 米" },
+            { title: "线上社群推送", body: "通过企微社群定向推送 1 次，附 3 张高清图 + 倒计时（72 小时内有效）" },
+            { title: "DDL 复盘", body: `${urgency === 3 ? 7 : urgency === 2 ? 14 : 21} 天后盘点剩余，剩余 10% 以内调拨或闲鱼处理` },
+          ],
+        };
+        addClearanceToCalendar(plan);
+        closeModal();
+        toast("✓ 清仓方案 " + sel + " 已加入日历 · 今日待办已自动同步");
+        state.page = "calendar";
+        render();
+      });
+    }
   }
 }
 
@@ -2734,7 +3420,7 @@ function modalOrderDetail() {
   return `
     <div class="modal-head">
       <div>
-        <h3>商品销售排行</h3>
+        <h3>今日订单明细</h3>
         <div class="sub">所有 IP · 共 ${MOCK.products.length} 个 SKU · 数据基于模拟</div>
       </div>
       <button class="modal-close" data-modal-close>×</button>
@@ -3163,14 +3849,15 @@ function modalClearancePlan() {
     </div>
     <div class="modal-foot">
       <button class="btn" data-modal-close>取消</button>
-      <button class="btn btn-primary">确认创建计划</button>
+      <button class="btn btn-primary" data-cp-confirm>✓ 确认创建，加入今日看板</button>
     </div>
   `;
 }
 
 /* ----- 弹窗 9：To Do 详情（手把手教学） ----- */
 function modalTodoDetail(id) {
-  const t = state.todos.find(x => x.id === id);
+  // todos 动态生成，去 getTodayTodos 里找
+  const t = getTodayTodos().find(x => x.id === id);
   if (!t) return "<div>待办不存在</div>";
   return `
     <div class="modal-head">
@@ -3264,7 +3951,7 @@ function modalMonthlyClearanceDetail(id) {
 function modalMonthlyClearancePlan(id) {
   const c = MOCK.monthlyClearance.find(x => x.id === id);
   if (!c) return "<div>方案不存在</div>";
-  const urgencyDays = c.urgency === 3 ? 30 : c.urgency === 2 ? 20 : 15;
+  const urgencyDays = c.urgency === 3 ? 0 : c.urgency === 2 ? 1 : 3;
   return `
     <div class="modal-head">
       <div>
@@ -3318,7 +4005,7 @@ function modalAddReceipt() {
     <div class="modal-head">
       <div>
         <h3>添加新的单据</h3>
-        <div class="sub">手动录入一笔销售或进货记录</div>
+        <div class="sub">手动录入一笔进货 / 销售记录 — 进货会自动入库存</div>
       </div>
       <button class="modal-close" data-modal-close>×</button>
     </div>
@@ -3327,11 +4014,11 @@ function modalAddReceipt() {
         <div class="row-2">
           <div>
             <label class="form-label">单据类型</label>
-            <select class="form-select">
-              <option>销售</option>
-              <option>进货</option>
-              <option>退货</option>
-              <option>调拨</option>
+            <select class="form-select" name="type" id="receipt-type">
+              <option value="purchase">📦 进货（自动加库存）</option>
+              <option value="sale">💰 销售（自动减库存）</option>
+              <option value="return">↩️ 退货（回滚）</option>
+              <option value="transfer">🔁 调拨（仅记录）</option>
             </select>
           </div>
           <div>
@@ -3340,26 +4027,36 @@ function modalAddReceipt() {
           </div>
         </div>
         <div>
+          <label class="form-label">关联 SKU（库存自动调整）</label>
+          <select class="form-select" name="skuId" id="receipt-sku">
+            <option value="">— 不关联，仅记录 —</option>
+            ${MOCK.products.map(p => `<option value="${p.id}" data-ip="${p.ip}" data-name="${p.name}" data-cost="${p.cost}" data-price="${p.price}" data-stock="${p.stock}">${p.ip} · ${p.name}（当前库存 ${p.stock}）</option>`).join('')}
+          </select>
+        </div>
+        <div>
           <label class="form-label">IP 名称</label>
-          <input class="form-input" name="ip" placeholder="如：咒术回战" />
+          <input class="form-input" name="ip" placeholder="如：咒术回战（自动从 SKU 带入）" />
         </div>
         <div>
           <label class="form-label">商品名称</label>
-          <input class="form-input" name="product" placeholder="如：五条悟 亚克力立牌" />
+          <input class="form-input" name="product" placeholder="如：五条悟 亚克力立牌（自动从 SKU 带入）" />
         </div>
         <div class="row-2">
           <div>
             <label class="form-label">数量</label>
-            <input class="form-input" name="qty" type="number" min="1" value="1" />
+            <input class="form-input" name="qty" type="number" min="1" value="20" />
           </div>
           <div>
             <label class="form-label">金额 (¥)</label>
-            <input class="form-input" name="amount" type="number" min="0" value="45" />
+            <input class="form-input" name="amount" type="number" min="0" value="900" />
           </div>
         </div>
         <div>
           <label class="form-label">备注（可选）</label>
-          <input class="form-input" placeholder="例如：会员价 / 漫展客户" />
+          <input class="form-input" name="note" placeholder="例如：漫展档口 / 进货商：xx / 渠道" />
+        </div>
+        <div id="receipt-sku-preview" style="background:var(--primary-soft);padding:10px 12px;border-radius:8px;font-size:12px;color:var(--primary-dark);display:none;">
+          <strong>📊 自动入库存预览：</strong><span id="receipt-sku-preview-text"></span>
         </div>
       </div>
     </div>
