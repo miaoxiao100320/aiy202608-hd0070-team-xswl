@@ -1,0 +1,3413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <title>谷雨 · AI谷子店铺经营管家</title>
+  <style>
+    /* ============ 设计令牌 ============ */
+    :root {
+      /* === 谷雨品牌色（更精致深邃版） === */
+      --primary: #4F7A5B;
+      --primary-dark: #2C4A37;
+      --primary-darker: #1A2D20;
+      --primary-light: #94B49F;
+      --primary-soft: #E8F0EA;
+      --primary-mist:  #F2F6F3;
+      --accent: #E89B45;
+      --accent-dark: #B97528;
+      --accent-soft: #FCEED9;
+      --bg: #F8F5EE;          /* 暖米色 */
+      --bg-2: #F2EEE3;
+      --card: #FFFFFF;
+      --card-elevated: #FDFBF6;
+      --border: #E8E2D4;
+      --border-strong: #D4CCBA;
+      --text: #1F2421;
+      --text-muted: #5A6056;
+      --text-light: #9A9F92;
+      --success: #5C9A75;
+      --success-soft: #E0F0E5;
+      --warning: #D89A3D;
+      --warning-soft: #FCEED9;
+      --danger: #C25450;
+      --danger-soft: #F8E5E3;
+      --info: #6B7D5C;
+      --info-soft: #EBF0E5;
+      --shadow-sm: 0 1px 2px rgba(31, 36, 33, 0.05);
+      --shadow: 0 4px 16px rgba(31, 36, 33, 0.06), 0 1px 3px rgba(31, 36, 33, 0.04);
+      --shadow-lg: 0 16px 40px rgba(31, 36, 33, 0.10), 0 4px 12px rgba(31, 36, 33, 0.04);
+      --shadow-xl: 0 24px 60px rgba(31, 36, 33, 0.14), 0 8px 16px rgba(31, 36, 33, 0.06);
+      --radius-sm: 8px;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --ease: cubic-bezier(.2,.7,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: "Manrope", -apple-system, BlinkMacSystemFont, "PingFang SC",
+                   "Microsoft YaHei", "Hiragino Sans GB", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-size: 14px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      letter-spacing: 0.005em;
+    }
+    .serif, h1, h2, h3, .title-serif {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+
+    /* 噪点纹理背景 - 整站 */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.12  0 0 0 0 0.1  0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      mix-blend-mode: multiply;
+    }
+    #root { position: relative; z-index: 1; min-height: 100vh; }
+
+    /* 渐次显现动画 */
+    @keyframes riseIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes scaleIn { from { opacity:0; transform:scale(0.96); } to { opacity:1; transform:scale(1); } }
+    @keyframes slideRight { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes pulseGlow { 0%,100%{box-shadow:0 0 0 0 rgba(232,155,69,0.4);} 50%{box-shadow:0 0 0 8px rgba(232,155,69,0);} }
+    .rise-in { animation: riseIn 0.6s var(--ease) both; }
+    .fade-in { animation: fadeIn 0.5s ease both; }
+    .scale-in { animation: scaleIn 0.4s var(--ease) both; }
+    .stagger > * { animation: riseIn 0.5s var(--ease) both; }
+    .stagger > *:nth-child(1) { animation-delay: 0.05s; }
+    .stagger > *:nth-child(2) { animation-delay: 0.1s; }
+    .stagger > *:nth-child(3) { animation-delay: 0.15s; }
+    .stagger > *:nth-child(4) { animation-delay: 0.2s; }
+    .stagger > *:nth-child(5) { animation-delay: 0.25s; }
+    .stagger > *:nth-child(6) { animation-delay: 0.3s; }
+    .stagger > *:nth-child(7) { animation-delay: 0.35s; }
+    .stagger > *:nth-child(8) { animation-delay: 0.4s; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01s !important; transition-duration: 0.01s !important; }
+    }
+
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+    /* ============ 通用：按钮 / 标签 ============ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 18px; border: 1px solid transparent; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s var(--ease);
+      background: #fff; color: var(--text); border-color: var(--border-strong);
+      font-family: inherit; position:relative;
+    }
+    .btn:hover { background: #FAFAF7; border-color: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+      box-shadow: 0 1px 2px rgba(46, 89, 68, 0.15);
+    }
+    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .btn-accent {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .btn-accent:hover { background: #D38631; border-color: #D38631; }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+    .btn-ghost:hover { background: var(--primary-soft); color: var(--primary-dark); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-lg { padding: 12px 28px; font-size: 15px; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .tag {
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      border-radius: 4px; font-size: 12px; font-weight: 500;
+      background: var(--primary-soft); color: var(--primary-dark);
+    }
+    .tag-warning { background: var(--warning-soft); color: #B45309; }
+    .tag-danger  { background: var(--danger-soft);  color: var(--danger); }
+    .tag-success { background: var(--success-soft); color: #047857; }
+    .tag-info    { background: var(--info-soft);    color: #1D4ED8; }
+    .tag-gray    { background: #F3F4F6; color: #4B5563; }
+
+    /* ============ 登录 / 引导 屏 ============ */
+    .auth-shell {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: var(--bg);
+    }
+    .auth-aside {
+      position: relative;
+      background: linear-gradient(155deg, #2E5944 0%, #4F7A5B 60%, #6B9B7C 100%);
+      color: #fff;
+      padding: 56px 64px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden;
+    }
+    .auth-aside::before, .auth-aside::after {
+      content: ""; position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .auth-aside::before { width: 360px; height: 360px; top: -120px; right: -120px; }
+    .auth-aside::after  { width: 220px; height: 220px; bottom: 80px; right: 60px; background: rgba(255,255,255,0.04); }
+    .auth-brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+    .auth-brand .logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; backdrop-filter: blur(8px);
+    }
+    .auth-brand h1 { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
+    .auth-brand small { display: block; font-size: 11px; opacity: .7; letter-spacing: 2px; }
+    .auth-pitch { position: relative; z-index: 1; }
+    .auth-pitch h2 { font-size: 30px; line-height: 1.4; font-weight: 600; margin-bottom: 16px; }
+    .auth-pitch p { font-size: 15px; opacity: .85; line-height: 1.7; max-width: 420px; }
+    .auth-pitch .bullets { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+    .auth-pitch .bullets div { display: flex; align-items: center; gap: 10px; font-size: 13px; opacity: .9; }
+    .auth-pitch .bullets .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    }
+    .auth-foot { font-size: 12px; opacity: .6; position: relative; z-index: 1; }
+
+    .auth-main {
+      display: flex; align-items: center; justify-content: center; padding: 40px;
+    }
+    .auth-card {
+      width: 100%; max-width: 420px;
+    }
+    .auth-card h3 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .auth-card .sub { color: var(--text-muted); margin-bottom: 28px; font-size: 13px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; color: var(--text); margin-bottom: 6px; font-weight: 500; }
+    .form-input, .form-select {
+      width: 100%; padding: 11px 14px; font-size: 14px;
+      border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+      background: #fff; color: var(--text); font-family: inherit;
+      transition: all .15s ease;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none; border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-input { flex: 1; }
+    .form-row .btn { white-space: nowrap; }
+    .form-tip { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .input-with-prefix { display: flex; align-items: center; }
+    .input-with-prefix .prefix {
+      padding: 11px 12px; background: #F7F4ED; color: var(--text-muted);
+      border: 1px solid var(--border-strong); border-right: 0; border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+      font-size: 14px;
+    }
+    .input-with-prefix .form-input { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+    .auth-card .btn-primary { width: 100%; padding: 12px; margin-top: 6px; }
+    .auth-foot-link { text-align: center; margin-top: 18px; font-size: 12px; color: var(--text-muted); }
+
+    /* 验证码输入 */
+    .code-inputs { display: flex; gap: 8px; margin-top: 4px; justify-content: center; }
+    .code-inputs input {
+      width: 44px; height: 52px; flex: 0 0 44px;
+      text-align: center; font-size: 22px; font-weight: 600;
+      padding: 0; border: 1.5px solid var(--border-strong); border-radius: 8px;
+      background: #fff; font-family: inherit; color: var(--primary-dark);
+      transition: all .15s ease;
+    }
+    .code-inputs input:hover { border-color: var(--primary-light); }
+    .code-inputs input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+    .code-inputs input.filled { border-color: var(--primary); background: var(--primary-soft); }
+    @media (max-width: 380px) {
+      .code-inputs input { width: 38px; height: 48px; font-size: 20px; }
+      .code-inputs { gap: 6px; }
+    }
+
+    /* 引导 wizard */
+    .wizard {
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .wizard-head {
+      padding: 24px 40px; border-bottom: 1px solid var(--border);
+      background: #fff; display: flex; align-items: center; justify-content: space-between;
+    }
+    .wizard-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .wizard-brand .logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--primary-soft); color: var(--primary-dark);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .wizard-body {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px;
+    }
+    .wizard-card {
+      width: 100%; max-width: 720px; background: #fff;
+      border-radius: var(--radius-lg); padding: 40px 48px;
+      box-shadow: var(--shadow);
+    }
+    /* 移动端：wizard-card padding 缩小，避免内容溢出 */
+    @media (max-width: 480px) {
+      .wizard-card { padding: 28px 24px; }
+      .wizard-head { padding: 16px 20px; }
+    }
+    .wizard-steps {
+      display: flex; gap: 8px; margin-bottom: 28px;
+    }
+    .wizard-steps .step {
+      flex: 1; height: 4px; background: var(--border); border-radius: 2px;
+    }
+    .wizard-steps .step.active { background: var(--primary); }
+    .wizard-card h2 { font-size: 22px; margin-bottom: 6px; font-weight: 600; }
+    .wizard-card .desc { color: var(--text-muted); margin-bottom: 28px; font-size: 14px; }
+
+    .pos-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .pos-item {
+      border: 1.5px solid var(--border-strong); border-radius: var(--radius);
+      padding: 18px 20px; cursor: pointer; transition: all .15s ease;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .pos-item:hover { border-color: var(--primary-light); background: #FCFDFB; }
+    .pos-item.selected { border-color: var(--primary); background: var(--primary-soft); }
+    .pos-item .icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600;
+    }
+    .pos-item .name { font-weight: 500; font-size: 14px; }
+    .pos-item .meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .wizard-actions {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);
+    }
+
+    /* 单据列表 */
+    .receipt-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .receipt-row {
+      display: grid; grid-template-columns: 1fr 2fr 1fr 1fr;
+      padding: 12px 16px; font-size: 13px; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .receipt-row:last-child { border-bottom: 0; }
+    .receipt-row.head { background: #FAFAF7; font-weight: 500; color: var(--text-muted); font-size: 12px; }
+    .upload-area {
+      border: 2px dashed var(--border-strong); border-radius: var(--radius);
+      padding: 28px; text-align: center; color: var(--text-muted);
+      background: #FCFBF8; margin-top: 14px; cursor: pointer;
+    }
+    .upload-area:hover { border-color: var(--primary-light); background: var(--primary-soft); color: var(--primary-dark); }
+
+    /* ============ 主应用（侧边栏 + 内容） ============ */
+    .app-shell {
+      display: grid; grid-template-columns: 232px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: #fff; border-right: 1px solid var(--border);
+      padding: 24px 16px; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar .brand {
+      display: flex; align-items: center; gap: 10px; padding: 0 8px 24px;
+      border-bottom: 1px solid var(--border); margin-bottom: 16px;
+    }
+    .sidebar .brand .logo {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600;
+    }
+    .sidebar .brand .title { font-weight: 600; font-size: 15px; line-height: 1.2; }
+    .sidebar .brand .title small { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: var(--radius-sm);
+      color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 500;
+      transition: all .2s var(--ease); user-select: none;
+      position: relative;
+    }
+    .nav .nav-item:hover { background: var(--primary-mist); color: var(--text); transform: translateX(2px); }
+    .nav .nav-item.active {
+      background: var(--primary-soft); color: var(--primary-dark); font-weight: 600;
+    }
+    .nav .nav-item.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 18px; background: var(--primary); border-radius: 0 2px 2px 0;
+    }
+    .nav .nav-item .ico { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; }
+    .nav .nav-item .ico img { width: 18px; height: 18px; }
+    .nav .section-label {
+      font-size: 11px; color: var(--text-light); padding: 18px 12px 6px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .sidebar .store-card {
+      margin-top: auto; padding: 12px; background: var(--primary-soft);
+      border-radius: var(--radius); display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar .store-card .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 14px;
+    }
+    .sidebar .store-card .name { font-size: 13px; font-weight: 500; }
+    .sidebar .store-card .meta { font-size: 11px; color: var(--text-muted); }
+
+    .main { display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      height: 64px; padding: 0 32px; background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .crumbs { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+    .crumbs .now { color: var(--text); font-weight: 500; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; background: var(--accent-soft); color: #B45309;
+      border-radius: 999px; font-size: 12px; font-weight: 500;
+    }
+    .badge-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .content { padding: 28px 32px 60px; animation: fadeIn 0.5s var(--ease) both; }
+    .content > * { animation: riseIn 0.5s var(--ease) both; }
+    .content > *:nth-child(1) { animation-delay: 0.05s; }
+    .content > *:nth-child(2) { animation-delay: 0.1s; }
+    .content > *:nth-child(3) { animation-delay: 0.15s; }
+    .content > *:nth-child(4) { animation-delay: 0.2s; }
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+    .page-head > div:first-child { flex: 1 1 auto; min-width: 0; }
+    .page-head h1 { font-size: 22px; font-weight: 600; }
+    .page-head .sub { color: var(--text-muted); margin-top: 4px; font-size: 13px; }
+    .page-head > .btn,
+    .page-head > select,
+    .page-head > div:last-child { flex-shrink: 0; }
+
+    /* ============ 卡片 / 区块 ============ */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 18px 20px; position: relative; transition: all .15s ease;
+    }
+    .stat-card.clickable { cursor: pointer; }
+    .stat-card.clickable:hover {
+      border-color: var(--primary-light); box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
+    .stat-card .label { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .stat-card .value { font-size: 26px; font-weight: 600; margin-top: 8px; color: var(--text); }
+    .stat-card .delta { font-size: 12px; margin-top: 4px; }
+    .stat-card .delta.up { color: var(--success); }
+    .stat-card .delta.down { color: var(--danger); }
+    .stat-card .arrow { position: absolute; right: 16px; top: 16px; color: var(--text-light); font-size: 14px; }
+    .stat-card.clickable .arrow { color: var(--primary); }
+
+    .panel {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 22px 24px; margin-bottom: 18px;
+      box-shadow: var(--shadow); transition: box-shadow .25s var(--ease);
+    }
+    .panel:hover { box-shadow: var(--shadow-lg); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+    .panel-head h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .panel-head .meta { color: var(--text-muted); font-size: 12px; }
+    .panel-grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+    .panel-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+
+    /* ============ 风险 / 异动 列表 ============ */
+    .alert-list { display: flex; flex-direction: column; gap: 10px; max-height: 360px; overflow-y: auto; padding-right: 4px; }
+    .alert-list::-webkit-scrollbar { width: 4px; }
+    .alert-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+    .alert-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: #FCFBF8; transition: all .15s ease;
+    }
+    .alert-item.clickable { cursor: pointer; }
+    .alert-item.clickable:hover { border-color: var(--primary-light); background: #fff; transform: translateX(2px); }
+    .alert-item .ico {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .alert-item .ico img { width: 20px; height: 20px; object-fit: contain; }
+    .alert-item .ico.danger  { background: var(--danger-soft);  color: var(--danger); }
+    .alert-item .ico.warning { background: var(--warning-soft); color: #B45309; }
+    .alert-item .ico.success { background: var(--success-soft); color: #047857; }
+    .alert-item .ico.info    { background: var(--info-soft);    color: #1D4ED8; }
+
+    /* ============ AI 图标系统 ============ */
+    .ico { display: inline-block; vertical-align: middle; }
+    .ico-sm { width: 14px; height: 14px; }
+    .ico-md { width: 18px; height: 18px; }
+    .ico-lg { width: 22px; height: 22px; }
+    .ico-xl { width: 28px; height: 28px; }
+    .ico-2x { width: 32px; height: 32px; }
+    .ico-3x { width: 40px; height: 40px; }
+    .ico-nav { width: 18px; height: 18px; }   /* 侧边栏 nav 用 */
+    .ico-card { width: 28px; height: 28px; }  /* 卡片大图标 */
+    .ico-step { width: 20px; height: 20px; }  /* 教程步骤图标 */
+    .ico-stat { width: 14px; height: 14px; }  /* 状态点旁小图 */
+    /* 增强图标饱和度 + 微弱阴影，避免看起来灰蒙蒙的 */
+    .ico { filter: saturate(1.15) contrast(1.05); }
+    .ico-sm { filter: saturate(1.1); }
+    .ico-md, .ico-nav, .ico-step { filter: saturate(1.15) contrast(1.05); }
+    .ico-lg, .ico-xl { filter: saturate(1.2) contrast(1.08); }
+    .ico-2x, .ico-3x { filter: saturate(1.25) contrast(1.1) drop-shadow(0 1px 1px rgba(0,0,0,0.06)); }
+    /* 状态色（用于上下文变色）： */
+    .ico-danger  { filter: hue-rotate(70deg) saturate(4.5) brightness(0.92) contrast(1.05); }
+    .ico-warning { filter: hue-rotate(35deg) saturate(3) brightness(0.92) contrast(1.05); }
+    .ico-success { filter: hue-rotate(115deg) saturate(2.4) brightness(0.88) contrast(1.05); }
+    .ico-info    { filter: hue-rotate(170deg) saturate(3) brightness(0.92) contrast(1.05); }
+    .ico-orange  { filter: hue-rotate(35deg) saturate(3.5) brightness(1.05) contrast(1.05); }
+    .alert-item .body { flex: 1; min-width: 0; }
+    .alert-item .title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .alert-item .desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.5; }
+    .alert-item .meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+
+    /* ============ 表格 ============ */
+    .data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+    .data-table th, .data-table td {
+      padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .data-table th {
+      font-weight: 500; color: var(--text-muted); font-size: 12px;
+      background: #FCFBF8;
+    }
+    .data-table tr:last-child td { border-bottom: 0; }
+    .data-table tr:hover td { background: #FCFBF8; }
+    .data-table .rank { color: var(--text-light); font-weight: 600; }
+    .data-table .rank.top { color: var(--accent); }
+    .data-table td.right, .data-table th.right { text-align: right; }
+    .data-table td.center, .data-table th.center { text-align: center; }
+
+    .row-warn td { background: #FFFBEB !important; }
+    .row-danger td { background: #FEF2F2 !important; color: var(--danger); }
+    .row-danger td .ip-name { color: var(--danger); }
+
+    /* ============ 周报：滞销分级 ============ */
+    .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+    .tier-card {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px; background: #fff; position: relative;
+    }
+    .tier-card .tier-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .tier-card .tier-name { font-size: 14px; font-weight: 600; }
+    .tier-card .tier-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+    .tier-card .tier-stat { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); }
+    .tier-card .tier-stat .v { font-size: 18px; color: var(--text); font-weight: 600; display: block; }
+    .tier-card.urgent { border-left: 3px solid var(--danger); }
+    .tier-card.urgent .tier-name { color: var(--danger); }
+    .tier-card.serious { border-left: 3px solid var(--warning); }
+    .tier-card.serious .tier-name { color: #B45309; }
+    .tier-card.watch { border-left: 3px solid var(--info); }
+    .tier-card.watch .tier-name { color: #1D4ED8; }
+
+    .clearance-list { display: flex; flex-direction: column; gap: 10px; }
+    .clearance-item {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 12px; align-items: center;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: #FCFBF8;
+    }
+    .clearance-item .ci-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .clearance-item .ci-name { font-weight: 500; font-size: 14px; }
+    .clearance-item .ci-meta { font-size: 12px; color: var(--text-muted); }
+
+    .purchase-list { display: flex; flex-direction: column; gap: 12px; }
+    .purchase-item {
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: 16px; align-items: center;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: #FCFBF8;
+    }
+    .purchase-item .pi-rank {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+      color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;
+    }
+    .purchase-item .pi-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+    .purchase-item .pi-ip { font-size: 12px; color: var(--text-muted); }
+    .purchase-item .pi-side { text-align: right; }
+    .purchase-item .pi-qty { font-size: 16px; font-weight: 600; color: var(--primary); }
+
+    /* ============ 月报：图表 / 生命周期 ============ */
+    .monthly-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 22px; }
+    .metric-card {
+      padding: 18px 20px; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); position: relative; overflow: hidden;
+    }
+    .metric-card .label { color: var(--text-muted); font-size: 13px; }
+    .metric-card .value { font-size: 28px; font-weight: 600; margin-top: 8px; }
+    .metric-card .sub { font-size: 12px; margin-top: 4px; }
+    .metric-card .accent-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    .metric-card.green .accent-bar { background: var(--success); }
+    .metric-card.green .value { color: var(--success); }
+    .metric-card.amber .accent-bar { background: var(--warning); }
+    .metric-card.amber .value { color: #B45309; }
+    .metric-card.red .accent-bar { background: var(--danger); }
+    .metric-card.red .value { color: var(--danger); }
+
+    .lifecycle-list { display: flex; flex-direction: column; gap: 10px; }
+    .lifecycle-item {
+      display: grid; grid-template-columns: 1.2fr 80px 2fr 100px;
+      gap: 16px; align-items: center;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: #FCFBF8;
+    }
+    .lifecycle-item .li-ip { font-weight: 500; font-size: 14px; }
+    .lifecycle-item .li-ip small { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+    .lifecycle-item .li-bar { height: 8px; background: var(--border); border-radius: 4px; position: relative; overflow: hidden; }
+    .lifecycle-item .li-bar > span { position: absolute; left: 0; top: 0; bottom: 0; background: var(--primary); border-radius: 4px; }
+
+    /* ============ 月报进货建议 ============ */
+    .monthly-purchase { display: flex; flex-direction: column; gap: 10px; }
+    .mp-item {
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: 14px; align-items: center;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: #FCFBF8;
+    }
+    .mp-item .mp-rank {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 13px;
+    }
+    .mp-item .mp-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+    .mp-item .mp-meta { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .mp-item .mp-side { text-align: right; }
+    .mp-item .mp-qty { font-size: 18px; font-weight: 600; color: var(--primary); }
+    .mp-item .mp-impact { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ============ 月报清仓建议 ============ */
+    .monthly-clearance { display: flex; flex-direction: column; gap: 12px; }
+    .mc-card {
+      padding: 16px 18px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      background: #FCFBF8; position: relative;
+    }
+    .mc-card.urgent { border-left: 4px solid var(--danger); }
+    .mc-card.serious { border-left: 4px solid var(--warning); }
+    .mc-card.watch { border-left: 4px solid var(--info); }
+    .mc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .mc-head .mc-title { font-weight: 600; font-size: 14px; }
+    .mc-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
+    .mc-expected {
+      padding: 8px 12px; background: rgba(255,255,255,0.6); border-radius: 6px;
+      font-size: 12px; color: var(--text); margin-bottom: 12px;
+    }
+    .mc-actions { display: flex; gap: 8px; }
+
+    /* ============ 今日待办 To Do List ============ */
+    .todo-list { display: flex; flex-direction: column; gap: 10px; }
+    .todo-item {
+      display: grid; grid-template-columns: 8px 1fr auto;
+      gap: 14px; align-items: stretch;
+      padding: 14px 16px; background: #FCFBF8;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      cursor: pointer; transition: all .15s ease;
+    }
+    .todo-item:hover { border-color: var(--primary-light); background: #fff; transform: translateX(2px); }
+    .todo-item .todo-bar { width: 4px; border-radius: 2px; }
+    .todo-item[data-priority="3"] .todo-bar { background: var(--danger); }
+    .todo-item[data-priority="2"] .todo-bar { background: var(--warning); }
+    .todo-item[data-priority="1"] .todo-bar { background: var(--info); }
+    .todo-item.done { opacity: 0.55; background: #FAFAF7; }
+    .todo-item.done .todo-title { text-decoration: line-through; }
+    .todo-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .todo-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+    .todo-meta .todo-source { color: var(--primary); font-weight: 500; }
+    .todo-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+
+    /* To Do 详情 */
+    .todo-detail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .todo-detail-title { font-size: 18px; font-weight: 600; }
+    .todo-detail-affects { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+
+    /* ============ 我的店铺 ============ */
+    .store-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .action-card {
+      padding: 24px; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); cursor: pointer; transition: all .15s ease;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .action-card:hover {
+      border-color: var(--primary-light); box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .action-card .ac-ico {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+      background: var(--primary-soft); color: var(--primary-dark);
+    }
+    .action-card .ac-ico.orange { background: var(--accent-soft); color: var(--accent); }
+    .action-card .ac-name { font-size: 15px; font-weight: 600; }
+    .action-card .ac-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    .store-info {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px 24px; margin-bottom: 18px;
+    }
+    .store-info-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .si-cell .k { font-size: 12px; color: var(--text-muted); }
+    .si-cell .v { font-size: 14px; font-weight: 500; margin-top: 4px; }
+
+    /* ============ 弹窗 ============ */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15, 20, 18, 0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50; backdrop-filter: blur(2px);
+      animation: fadeIn .15s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      background: #fff; border-radius: var(--radius-lg);
+      width: 100%; max-width: 720px; max-height: 86vh; overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp .2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal.lg { max-width: 880px; }
+    .modal-head {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .modal-head h3 { font-size: 17px; font-weight: 600; }
+    .modal-head .sub { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px; border: 0; background: transparent;
+      cursor: pointer; color: var(--text-muted); font-size: 18px; line-height: 1;
+    }
+    .modal-close:hover { background: var(--primary-soft); color: var(--primary-dark); }
+    .modal-body { padding: 22px 24px; overflow-y: auto; flex: 1; }
+    .modal-foot {
+      padding: 16px 24px; border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 10px; background: #FCFBF8;
+    }
+
+    /* 饼图 */
+    .donut-wrap { display: flex; align-items: center; gap: 24px; margin-bottom: 16px; }
+    .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .legend-item {
+      display: grid; grid-template-columns: 12px 1fr auto auto;
+      gap: 10px; align-items: center; font-size: 13px; padding: 6px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .legend-item:last-child { border-bottom: 0; }
+    .legend-item .swatch { width: 12px; height: 12px; border-radius: 3px; }
+    .legend-item .pct { color: var(--text-muted); font-size: 12px; }
+    .legend-item .val { font-weight: 600; }
+
+    /* 库存详情 IP 表格 */
+    .ip-table { width: 100%; }
+    .ip-table .ip-name { font-weight: 500; }
+    .ip-table .progress {
+      height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .ip-table .progress > span { display: block; height: 100%; background: var(--primary); }
+
+    /* 折线图 / 区域 */
+    .spark-wrap { padding: 12px 0; }
+    .spark-info { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .spark-info .now { font-size: 24px; font-weight: 600; }
+    .spark-info .delta { font-size: 13px; }
+
+    /* 清仓方案 详情卡片 */
+    .plan-option {
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 12px; background: #FCFBF8;
+    }
+    .plan-option.selected { border-color: var(--primary); background: var(--primary-soft); }
+    .plan-option .po-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .plan-option .po-name { font-weight: 600; font-size: 14px; }
+    .plan-option .po-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .plan-option .po-expected {
+      margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+      font-size: 12px; color: var(--text-muted);
+    }
+    .plan-option .po-expected strong { color: var(--text); }
+
+    .tutorial-step {
+      display: grid; grid-template-columns: 32px 1fr; gap: 14px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .tutorial-step:last-child { border-bottom: 0; }
+    .tutorial-step .ts-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--primary-soft); color: var(--primary-dark);
+      display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;
+    }
+    .tutorial-step .ts-title { font-weight: 500; font-size: 14px; margin-bottom: 4px; }
+    .tutorial-step .ts-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* 进货依据 */
+    .reason-list { display: flex; flex-direction: column; gap: 12px; }
+    .reason-item {
+      display: grid; grid-template-columns: 36px 1fr;
+      gap: 12px; padding: 12px; background: #FCFBF8; border-radius: var(--radius);
+    }
+    .reason-item .ri-ico {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--primary-soft); color: var(--primary-dark);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .reason-item .ri-title { font-weight: 500; font-size: 14px; margin-bottom: 4px; }
+    .reason-item .ri-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* 表单（弹窗中） */
+    .modal-form { display: flex; flex-direction: column; gap: 14px; }
+    .modal-form .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* 隐藏工具类 */
+    .hidden { display: none !important; }
+
+    /* 响应式 */
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid-2, .panel-grid-3, .tier-grid, .monthly-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .auth-shell { grid-template-columns: 1fr; }
+      .auth-aside { display: none; }
+    }
+
+    /* ============ 进货计划 ============ */
+    .head-actions { display:flex; gap:8px; align-items:center; }
+    .purchase-list { display:flex; flex-direction:column; gap:12px; }
+    .purchase-item {
+      display:flex; align-items:flex-start; gap:14px;
+      padding:14px 16px; border:1px solid var(--line-2);
+      border-radius:12px; background:#fff; transition:all .2s;
+    }
+    .purchase-item:hover { border-color:var(--green-light); box-shadow:0 2px 8px rgba(79,122,91,.08); }
+    .purchase-item.done { opacity:0.5; background:var(--green-soft); }
+    .purchase-item.done .purchase-title strong { text-decoration:line-through; }
+    .purchase-num {
+      width:28px; height:28px; border-radius:50%;
+      background:var(--green-soft); color:var(--green-dark);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:600; font-size:13px; flex-shrink:0;
+    }
+    .purchase-title { font-size:14px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .purchase-meta { font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.6; }
+    .purchase-qty { font-size:12px; color:var(--text-2); margin-top:6px; }
+    .purchase-actions { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+
+    /* ============ 预测链 ============ */
+    .pred-chain { display:flex; flex-direction:column; gap:8px; }
+    .pred-step {
+      display:flex; gap:14px; align-items:flex-start;
+      padding:14px 16px; background:#fff; border:1px solid var(--line-2);
+      border-radius:10px; transition:all .2s;
+    }
+    .pred-step:hover { border-color:var(--green-light); }
+    .pred-step.final { background:linear-gradient(135deg, var(--green-soft) 0%, #fff 100%); border-color:var(--green); }
+    .pred-num {
+      width:32px; height:32px; border-radius:8px;
+      background:var(--green); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:600; font-size:14px; flex-shrink:0;
+    }
+    .pred-content { flex:1; min-width:0; }
+    .pred-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .pred-desc { font-size:12px; color:var(--text-2); line-height:1.6; }
+    .pred-trend { font-size:12px; color:var(--text-2); margin-top:6px; }
+    .pred-arrow { text-align:center; color:var(--green); font-size:18px; line-height:1; }
+
+    /* ============ AI 经营助手 ============ */
+    .ai-fab {
+      position:fixed; right:24px; bottom:24px; z-index:200;
+      width:60px; height:60px; border-radius:50%;
+      background:#fff; box-shadow:0 6px 24px rgba(79,122,91,.35);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:all .25s; border:2px solid var(--green-soft);
+    }
+    .ai-fab:hover { transform:translateY(-3px) scale(1.05); box-shadow:0 10px 30px rgba(79,122,91,.45); }
+    .ai-fab img { width:48px; height:48px; border-radius:50%; }
+    .ai-fab .pulse-dot {
+      position:absolute; top:6px; right:6px;
+      width:12px; height:12px; border-radius:50%;
+      background:var(--orange); border:2px solid #fff;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.2);opacity:0.7;} }
+    .ai-fab .badge {
+      position:absolute; right:70px; top:50%; transform:translateY(-50%);
+      background:var(--ink); color:#fff; font-size:12px; padding:6px 12px;
+      border-radius:18px; white-space:nowrap; opacity:0; transition:all .25s;
+      pointer-events:none;
+    }
+    .ai-fab:hover .badge { opacity:1; right:76px; }
+
+    .ai-window {
+      position:fixed; right:24px; bottom:100px; z-index:201;
+      width:380px; height:560px; max-height:80vh;
+      background:#fff; border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.18);
+      display:flex; flex-direction:column; overflow:hidden;
+      transform-origin:bottom right; transform:scale(0.8) translateY(20px);
+      opacity:0; pointer-events:none; transition:all .25s cubic-bezier(.2,.7,.2,1);
+    }
+    .ai-window.open { transform:scale(1) translateY(0); opacity:1; pointer-events:auto; }
+    .ai-head {
+      display:flex; align-items:center; gap:10px; padding:14px 16px;
+      background:linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+      color:#fff;
+    }
+    .ai-head img { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,.3); }
+    .ai-head .name { font-weight:600; font-size:14px; }
+    .ai-head .sub { font-size:11px; opacity:0.85; }
+    .ai-head .close { margin-left:auto; cursor:pointer; opacity:0.8; padding:4px 8px; font-size:16px; }
+    .ai-head .close:hover { opacity:1; }
+    .ai-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--bg); }
+    .ai-msg { max-width:80%; padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.7; white-space:pre-wrap; word-wrap:break-word; }
+    .ai-msg.user { align-self:flex-end; background:var(--green); color:#fff; border-bottom-right-radius:4px; }
+    .ai-msg.bot  { align-self:flex-start; background:#fff; color:var(--text); border:1px solid var(--line-2); border-bottom-left-radius:4px; }
+    .ai-msg .msg-meta { font-size:10px; color:var(--text-4); margin-top:4px; opacity:0.7; }
+    .ai-quick { display:flex; flex-wrap:wrap; gap:6px; padding:10px 14px; background:#fff; border-top:1px solid var(--line-2); }
+    .ai-quick button {
+      font-size:12px; padding:6px 10px; border:1px solid var(--line-2);
+      background:#fff; border-radius:14px; cursor:pointer; transition:all .2s;
+      color:var(--text-2);
+    }
+    .ai-quick button:hover { border-color:var(--green); color:var(--green-dark); background:var(--green-soft); }
+    .ai-input {
+      display:flex; gap:8px; padding:10px 12px; background:#fff; border-top:1px solid var(--line-2);
+    }
+    .ai-input input {
+      flex:1; padding:10px 12px; border:1px solid var(--line-2);
+      border-radius:18px; font-size:13px; outline:none; font-family:inherit;
+    }
+    .ai-input input:focus { border-color:var(--green); }
+    .ai-input button {
+      padding:0 16px; background:var(--green); color:#fff;
+      border:0; border-radius:18px; font-size:13px; cursor:pointer; font-family:inherit;
+    }
+    .ai-input button:hover { background:var(--green-dark); }
+    .ai-input button:disabled { opacity:0.5; cursor:not-allowed; }
+    .ai-typing { display:inline-flex; gap:4px; padding:4px 0; }
+    .ai-typing span {
+      width:6px; height:6px; border-radius:50%; background:var(--text-4);
+      animation:typing 1.2s infinite;
+    }
+    .ai-typing span:nth-child(2) { animation-delay:0.15s; }
+    .ai-typing span:nth-child(3) { animation-delay:0.3s; }
+    @keyframes typing { 0%,60%,100%{transform:translateY(0);opacity:0.4;} 30%{transform:translateY(-4px);opacity:1;} }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<!-- AI 分析逻辑模块（独立文件） -->
+<script src="utils/profitAnalysis.js"></script>
+<script src="utils/riskPrediction.js"></script>
+<script src="utils/businessMemory.js"></script>
+<script src="utils/aiAdvisor.js"></script>
+
+<script>
+/* =========================================================
+ * 模拟数据
+ * ========================================================= */
+const MOCK = {
+  store: {
+    name: "小春日和·动漫谷子铺",
+    owner: "林老板",
+    phone: "13800138000",
+    location: "上海市 静安区 漫展Mall B1-07",
+    pos: "美团商家收银",
+    posConnectedAt: "2026-07-22",
+  },
+
+  // 商品库存（含历史销量与"距上次销售"天数）
+  products: [
+    // 咒术回战
+    { id: 1,  ip: "咒术回战",     name: "五条悟 亚克力立牌", stock: 12, soldTotal: 86, soldToday: 8,  cost: 18, price: 45, daysSinceSale: 0, lastWeekSold: 22 },
+    { id: 2,  ip: "咒术回战",     name: "虎杖悠仁 徽章套装", stock: 5,  soldTotal: 75, soldToday: 6,  cost: 8,  price: 25, daysSinceSale: 1, lastWeekSold: 18 },
+    { id: 3,  ip: "咒术回战",     name: "伏黑惠 色纸",       stock: 18, soldTotal: 6,  soldToday: 0,  cost: 12, price: 35, daysSinceSale: 8, lastWeekSold: 1 },
+    // 间谍过家家
+    { id: 4,  ip: "间谍过家家",   name: "约尔 吧唧",         stock: 0,  soldTotal: 64, soldToday: 0,  cost: 6,  price: 18, daysSinceSale: 4, lastWeekSold: 12 },
+    { id: 5,  ip: "间谍过家家",   name: "阿尼亚 棉花娃娃",   stock: 8,  soldTotal: 22, soldToday: 3,  cost: 35, price: 89, daysSinceSale: 2, lastWeekSold: 8 },
+    { id: 6,  ip: "间谍过家家",   name: "黄昏 亚克力立牌",   stock: 15, soldTotal: 4,  soldToday: 0,  cost: 18, price: 45, daysSinceSale: 9, lastWeekSold: 1 },
+    // 排球少年
+    { id: 7,  ip: "排球少年",     name: "影山飞雄 拍立得",   stock: 10, soldTotal: 42, soldToday: 5,  cost: 5,  price: 18, daysSinceSale: 0, lastWeekSold: 14 },
+    { id: 8,  ip: "排球少年",     name: "日向翔阳 吧唧",     stock: 22, soldTotal: 8,  soldToday: 0,  cost: 6,  price: 18, daysSinceSale: 7, lastWeekSold: 2 },
+    // 蓝色监狱
+    { id: 9,  ip: "蓝色监狱",     name: "凪诚士郎 亚克力",   stock: 6,  soldTotal: 38, soldToday: 4,  cost: 18, price: 45, daysSinceSale: 0, lastWeekSold: 12 },
+    { id: 10, ip: "蓝色监狱",     name: "御影玲王 吧唧",     stock: 25, soldTotal: 4,  soldToday: 0,  cost: 6,  price: 18, daysSinceSale: 10, lastWeekSold: 1 },
+    // 文豪野犬
+    { id: 11, ip: "文豪野犬",     name: "太宰治 吧唧",       stock: 20, soldTotal: 9,  soldToday: 0,  cost: 6,  price: 18, daysSinceSale: 5, lastWeekSold: 2 },
+    { id: 12, ip: "文豪野犬",     name: "中原中也 亚克力",   stock: 14, soldTotal: 12, soldToday: 2,  cost: 18, price: 45, daysSinceSale: 1, lastWeekSold: 5 },
+    // 孤独摇滚
+    { id: 13, ip: "孤独摇滚",     name: "后藤一里 谷子套装", stock: 7,  soldTotal: 28, soldToday: 6,  cost: 88, price: 198, daysSinceSale: 0, lastWeekSold: 11 },
+    { id: 14, ip: "孤独摇滚",     name: "山田凉 吧唧",       stock: 16, soldTotal: 0,  soldToday: 0,  cost: 6,  price: 18, daysSinceSale: 3, lastWeekSold: 0 },
+    // 鬼灭之刃
+    { id: 15, ip: "鬼灭之刃",     name: "炭治郎 吧唧",       stock: 28, soldTotal: 14, soldToday: 0,  cost: 6,  price: 18, daysSinceSale: 6, lastWeekSold: 3 },
+    { id: 16, ip: "鬼灭之刃",     name: "祢豆子 亚克力",     stock: 11, soldTotal: 24, soldToday: 3,  cost: 18, price: 45, daysSinceSale: 0, lastWeekSold: 7 },
+    // 进击的巨人
+    { id: 17, ip: "进击的巨人",   name: "艾伦 亚克力牌",     stock: 19, soldTotal: 5,  soldToday: 0,  cost: 18, price: 45, daysSinceSale: 11, lastWeekSold: 1 },
+    { id: 18, ip: "进击的巨人",   name: "三笠 拍立得",       stock: 13, soldTotal: 11, soldToday: 1,  cost: 5,  price: 18, daysSinceSale: 2, lastWeekSold: 4 },
+    // 近期热门推荐
+    { id: 19, ip: "葬送的芙莉莲", name: "芙莉莲 吧唧",       stock: 6,  soldTotal: 12, soldToday: 4,  cost: 8,  price: 25, daysSinceSale: 0, lastWeekSold: 9 },
+    { id: 20, ip: "葬送的芙莉莲", name: "欣梅尔 亚克力",     stock: 9,  soldTotal: 7,  soldToday: 3,  cost: 18, price: 45, daysSinceSale: 0, lastWeekSold: 6 },
+  ],
+
+  // 收银系统
+  posSystems: [
+    { id: "meituan",  name: "美团商家收银",     meta: "推荐 · 漫展周边店常用",     icon: "美" },
+    { id: "eleme",    name: "饿了么商家版",     meta: "餐饮+零售通用",              icon: "饿" },
+    { id: "wechat",   name: "微信收款商业版",   meta: "微信生态打通",                icon: "微" },
+    { id: "alipay",   name: "支付宝商家收银",   meta: "支付宝生态打通",              icon: "支" },
+    { id: "douyin",   name: "抖音来客",         meta: "短视频+本地生活",              icon: "抖" },
+    { id: "offline",  name: "暂不接入（手动记账）", meta: "Demo 演示",                  icon: "记" },
+  ],
+
+  // IP 热度异动（首页用 + AI 助手数据源）
+  ipTrends: [
+    {
+      ip: "咒术回战",
+      delta: -15, current: 72, prev: 85,
+      reason: "夏季番结束后热度回落，全平台搜索量下滑 15%，贴吧日均讨论由 1.2k 降至 920。",
+      action: "建议减少五条悟系列补货，保留立牌/徽章基础款库存。",
+      history: [85, 82, 80, 78, 76, 74, 72]
+    },
+    {
+      ip: "葬送的芙莉莲",
+      delta: 38, current: 138, prev: 100,
+      reason: "新剧场版定档消息放出后，淘宝/小红书近 7 天搜索量 +62%，二次创作量 +38%。",
+      action: "建议本周内补 1 批芙莉莲吧唧（至少 30 个），可搭配 8.5 折试水。",
+      history: [100, 105, 112, 118, 124, 130, 138]
+    },
+    {
+      ip: "间谍过家家",
+      delta: -8, current: 95, prev: 103,
+      reason: "新剧场版上映已半年，二创热度降温；但立牌类持续有自然流量。",
+      action: "维持基础款库存，不追新。",
+      history: [103, 101, 99, 98, 97, 96, 95]
+    },
+    {
+      ip: "孤独摇滚",
+      delta: 22, current: 118, prev: 96,
+      reason: "新作 OVA 定档 + 周年活动预热，小红书二创 +45%。",
+      action: "建议补货后藤一里 谷子套装（30-50 个），毛利较高。",
+      history: [96, 100, 105, 108, 112, 115, 118]
+    },
+    {
+      ip: "蓝色监狱",
+      delta: 12, current: 108, prev: 96,
+      reason: "新角色联动活动，贴吧日均讨论 +20%。",
+      action: "建议少量补货 凪诚士郎 亚克力（20 个）。",
+      history: [96, 99, 102, 104, 105, 107, 108]
+    },
+    {
+      ip: "排球少年",
+      delta: -22, current: 68, prev: 90,
+      reason: "新剧场版已下映，进入热度衰退期，搜索量下滑 24%。",
+      action: "建议立即启动清仓，影山飞雄 拍立得 / 日向翔阳 吧唧 5 折出。",
+      history: [90, 86, 82, 78, 75, 72, 68]
+    },
+    {
+      ip: "进击的巨人",
+      delta: -32, current: 58, prev: 90,
+      reason: "已完结多年，热度持续衰退，新粉增量几乎为 0。",
+      action: "全线出清，闲鱼 / 漫展档口优先。",
+      history: [90, 84, 78, 72, 68, 62, 58]
+    },
+    {
+      ip: "文豪野犬",
+      delta: 3, current: 102, prev: 99,
+      reason: "新作手游活动 + 周年祭，热度小幅回暖。",
+      action: "维持现有库存，可少量补货。",
+      history: [99, 99, 100, 100, 101, 101, 102]
+    },
+    {
+      ip: "鬼灭之刃",
+      delta: -5, current: 88, prev: 93,
+      reason: "无限城篇进入中段，热度平稳略降。",
+      action: "维持基础款，关注后续剧情。",
+      history: [93, 92, 91, 90, 89, 89, 88]
+    }
+  ],
+
+  // 经营建议（首页用）
+  advice: [
+    { icon: "tent", title: "参加本周日 漫展ChinaJoy 预热场", desc: "上海国家会展中心，建议带咒术+芙莉莲试水套装，预期客流 3000+。", level: "info" },
+    { icon: "gift", title: "对滞销款做 2 件 8 折 捆绑", desc: "可组合 3 组，理论减少 14 个滞销 SKU，回笼 ¥420 现金。", level: "warning" },
+    { icon: "camera", title: "更新小红书门店笔记 1 篇", desc: "近 30 天笔记 0 发布，建议拍 1 条‘五条悟立牌到货’内容，预计带来 8-12 个加微。", level: "success" }
+  ],
+
+  // 今日库存风险（首页用）
+  risks: [
+    { level: "danger",  icon: "sos", title: "伏黑惠 色纸 已 8 天未售出", desc: "当前库存 18 个，占用资金 ¥216，建议本周内启动 8 折清仓。" },
+    { level: "warning", icon: "warning", title: "鬼灭之刃·炭治郎吧唧 库存超 30 天", desc: "占鬼灭 IP 总库存 67%，建议捆绑销或调拨至二次元夜市档口。" },
+    { level: "warning", icon: "chart-down", title: "进击的巨人 整体热度衰退", desc: "艾伦亚克力 11 天未售，三笠拍立得 2 天未售，关注是否进入衰退期。" }
+  ],
+
+  // 月报数据
+  monthly: {
+    revenue: 28640,
+    cost:    18420,
+    gross:   10220,
+    grossRate: 35.7,
+    wasteAmount: 1860,
+    wasteRate: 6.5,
+    capitalOccupied: 22450,
+    capitalTurnoverDays: 23
+  },
+
+  // IP 生命周期（月报）
+  lifecycle: [
+    { ip: "孤独摇滚",     stage: "成长",      score: 86, note: "周边热度仍在爬升，吧唧/亚克力可继续扩 SKU。" },
+    { ip: "葬送的芙莉莲", stage: "成长",      score: 92, note: "剧场版消息加持，二季度内为高优先级补货对象。" },
+    { ip: "间谍过家家",   stage: "成熟",      score: 64, note: "热度稳定但增速放缓，控进货量，保留 60 天库存。" },
+    { ip: "咒术回战",     stage: "成熟",      score: 58, note: "维持基础款，不再追新角色立牌。" },
+    { ip: "蓝色监狱",     stage: "成熟",      score: 52, note: "主角色 1-2 个仍可推，其余进入清仓。" },
+    { ip: "排球少年",     stage: "衰退",      score: 36, note: "出清为主，新番接力前不补货。" },
+    { ip: "进击的巨人",   stage: "衰退",      score: 28, note: "已完结 2 年，全线进入尾货阶段。" },
+    { ip: "鬼灭之刃",     stage: "成熟",      score: 60, note: "周边基本饱和，吧唧类剩余库存 30+ 天。" }
+  ],
+
+  // 月报进货建议：基于 IP 生命周期 + 季节档期
+  monthlyPurchase: [
+    { rank: 1, ip: "葬送的芙莉莲", name: "芙莉莲 吧唧（白情复刻）", qty: 80, reason: "剧场版 Q3 上映 + 七夕档，热度指数 92/100，2 季度内可推 3 批", stage: "成长", impact: "高毛利 ¥45/件" },
+    { rank: 2, ip: "葬送的芙莉莲", name: "欣梅尔 亚克力立牌",     qty: 50, reason: "新角色热度爬升 +38%，二创占比 22%，可补 1 批试水", stage: "成长", impact: "高毛利 ¥45/件" },
+    { rank: 3, ip: "孤独摇滚",     name: "后藤一里 谷子套装",     qty: 30, reason: "持续热卖 SKU，本月已售 28 件，库存 7 个即将断货", stage: "成长", impact: "高客单 ¥198/件" },
+    { rank: 4, ip: "蓝色监狱",     name: "凪诚士郎 亚克力（新色）", qty: 40, reason: "角色稳居热度榜 Top 3，扩 SKU 抓住复购人群", stage: "成熟", impact: "稳定 ¥45/件" },
+    { rank: 5, ip: "咒术回战",     name: "五条悟 拍立得套装",     qty: 25, reason: "经典款基础盘仍在，5 条悟 LBS 仍有稳定粉丝购买", stage: "成熟", impact: "低风险 ¥18/件" },
+    { rank: 6, ip: "间谍过家家",   name: "阿尼亚 棉花娃娃（限定）", qty: 20, reason: "季节限定款，Q3 漫展档期主推", stage: "成熟", impact: "中毛利 ¥89/件" },
+  ],
+
+  // 月报清仓建议：基于 IP 生命周期 + 月度销售数据（不同于周报）
+  monthlyClearance: [
+    {
+      id: "urgent",
+      level: "紧急", urgency: 3,
+      title: "进击的巨人 / 排球少年 · 全线出清",
+      desc: "进入衰退期的 IP，全 SKU 月销售已 < 5 件，但库存超 100 个，资金占用 ¥2,160。建议立即启动月度大清仓。",
+      expected: "30 天内清完 80% · 预计回款 ¥1,700 · 损耗控制 12%",
+      steps: [
+        { title: "盘点与分级", body: "把衰退期 SKU 分成 3 档：徽章 / 拍立得 / 立牌，分别贴橙、红、绿三色标签区分" },
+        { title: "打包月度特惠", body: "3 件 99 元盲盒组合，5 件 159 元组合装，月底漫展主推" },
+        { title: "闲鱼批量挂单", body: "立牌类 5 折起、徽章类 3 折起、拍立得 4 折；每天发 3 条朋友圈引流" },
+        { title: "跨店调拨", body: "联系同城 3 家谷店，9 折打包批发 50% 库存；剩余部分走仓库调拨" },
+        { title: "DDL 复盘", body: "30 天后盘点剩余，按 2 折出闲鱼或作赠品处理；同时彻底清空该 IP 货架" },
+      ],
+      affects: ["进击的巨人", "排球少年"]
+    },
+    {
+      id: "serious",
+      level: "严重", urgency: 2,
+      title: "鬼灭之刃 / 文豪野犬 · 吧唧专项清仓",
+      desc: "成熟期但吧唧类库存超 60 天，月销售 < 10 件，仅吧唧类资金占用 ¥540。建议专项清仓，不影响立牌等高单价 SKU。",
+      expected: "20 天内清完 70% · 预计回款 ¥380 · 损耗控制 5%",
+      steps: [
+        { title: "锁定清仓 SKU", body: "只清炭治郎吧唧 / 太宰治吧唧 / 中原中也吧唧，立牌 / 拍立得不参与" },
+        { title: "买二送一", body: "吧唧类任意 2 件 + 1 件库存 30 天以上单品；引导连带" },
+        { title: "小红书笔记", body: "发布 1 条《老角色吧唧收藏向》，带 #谷子 #二次元 话题，定位收藏人群" },
+        { title: "粉丝群秒杀", body: "每周三晚 8 点 8 折秒杀，限量 20 个，3 周共 60 个" },
+        { title: "数据复盘", body: "20 天后盘点，剩余 10% 转入月度盲盒，避免长期堆货" },
+      ],
+      affects: ["鬼灭之刃", "文豪野犬"]
+    },
+    {
+      id: "watch",
+      level: "观察", urgency: 1,
+      title: "蓝色监狱 · 单角色精细化出清",
+      desc: "成熟期，但御影玲王吧唧 10 天未售，库存 25 个，占用 ¥150；其他 SKU 正常。建议单 SKU 精细化处理。",
+      expected: "15 天内清完 60% · 预计回款 ¥90 · 损耗控制 2%",
+      steps: [
+        { title: "隔离出清", body: "把御影玲王吧唧从主货架移至 7 折专区，贴'即将下架'标签" },
+        { title: "组合优惠", body: "凪诚士郎 + 御影玲王组合 7 折，引导主角色带动次角色" },
+        { title: "复盘", body: "15 天后视销售情况决定是否升级到'严重'档处理" },
+      ],
+      affects: ["蓝色监狱"]
+    }
+  ]
+};
+
+/* =========================================================
+ * 工具函数
+ * ========================================================= */
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+const fmt = {
+  money: n => "¥" + n.toLocaleString("zh-CN", { maximumFractionDigits: 0 }),
+  pct:   n => (n * 100).toFixed(1) + "%",
+  num:   n => n.toLocaleString("zh-CN")
+};
+
+/* =========================================================
+ * AI 图标：统一调用入口
+ *   icon("home")           → 默认 18px
+ *   icon("home", "sm")     → 14px
+ *   icon("home", "danger") → 18px + 红色滤镜（仅用于状态上下文）
+ * 用法：<img src="icons/icon-X.png" /> 也行，这里只是为了统一
+ * ========================================================= */
+const icon = (name, sizeOrTint) => {
+  // sizeOrTint: "sm"|"md"|"lg"|"xl"|"2x"|"3x"|"nav"|"card"|"step"|"stat"
+  //            或 "danger"|"warning"|"success"|"info"|"orange"（仅 tint）
+  //            或 null
+  const sizeMap = {
+    sm: "ico-sm", md: "ico-md", lg: "ico-lg", xl: "ico-xl",
+    "2x": "ico-2x", "3x": "ico-3x",
+    nav: "ico-nav", card: "ico-card", step: "ico-step", stat: "ico-stat",
+  };
+  const tintMap = {
+    danger: "ico-danger", warning: "ico-warning", success: "ico-success",
+    info: "ico-info", orange: "ico-orange"
+  };
+  const sizeCls = sizeMap[sizeOrTint] || "ico-md";
+  const tintCls = tintMap[sizeOrTint] || "";
+  return `<img src="icons/icon-${name}.png" class="ico ${sizeCls} ${tintCls}" alt="" />`;
+};
+
+/* =========================================================
+ * 状态
+ * ========================================================= */
+const state = {
+  page: "dashboard",          // dashboard | weekly | monthly | purchasePlan | store
+  wizardStep: 0,              // 0=phone, 1=code, 2=shopInfo, 3=done
+  phone: "",
+  code: ["", "", "", "", "", ""],
+  // 店铺基础信息（wizard 第 3 步设置；可在我-店铺页编辑）
+  storeName: "",
+  owner: "",
+  location: "",
+  posId: "meituan",
+  pos: MOCK.posSystems,
+  receipts: [
+    { date: "2026-08-02", ip: "咒术回战",     product: "五条悟 亚克力立牌", qty: 1, amount: 45 },
+    { date: "2026-08-02", ip: "孤独摇滚",     product: "后藤一里 谷子套装", qty: 1, amount: 198 },
+    { date: "2026-08-01", ip: "葬送的芙莉莲", product: "芙莉莲 吧唧",       qty: 2, amount: 50 },
+    { date: "2026-07-30", ip: "间谍过家家",   product: "阿尼亚 棉花娃娃",   qty: 1, amount: 89 },
+  ],
+  generated: false,           // 周报是否已生成
+  selectedClearance: null,    // 选中的清仓方案
+  selectedProducts: [],       // 选中的滞销商品
+
+  // 进货计划（从周报 IP 异动/月报进货推荐 应用而来）
+  purchasePlan: [],
+
+  // AI 助手聊天记录
+  aiChat: [],
+
+  // ========== 今日待办 To Do ==========
+  // 每条 todo 形如：
+  // { id, title, category: "滞销"|"补货"|"活动", priority: 1|2|3,
+  //   steps: [{title, body}], source: "周报"|"月报"|"手动", sourceLabel,
+  //   affects: ["IP1","IP2"], done: false, createdAt: "2026-08-05" }
+  todos: [
+    // 预置 3 条示例，方便看板不空
+    {
+      id: "t1", priority: 3, category: "滞销", source: "月报", sourceLabel: "7月月报 · 紧急清仓",
+      title: "进击的巨人 / 排球少年 · 全线出清",
+      affects: ["进击的巨人", "排球少年"],
+      ddl: "2026-08-30",
+      done: false,
+      steps: [
+        { title: "盘点与分级", body: "把衰退期 SKU 分成 3 档：徽章 / 拍立得 / 立牌，分别贴橙、红、绿三色标签区分" },
+        { title: "打包月度特惠", body: "3 件 99 元盲盒组合，5 件 159 元组合装，月底漫展主推" },
+        { title: "闲鱼批量挂单", body: "立牌类 5 折起、徽章类 3 折起、拍立得 4 折；每天发 3 条朋友圈引流" },
+        { title: "跨店调拨", body: "联系同城 3 家谷店，9 折打包批发 50% 库存；剩余部分走仓库调拨" },
+        { title: "DDL 复盘", body: "30 天后盘点剩余，按 2 折出闲鱼或作赠品处理；同时彻底清空该 IP 货架" },
+      ]
+    },
+    {
+      id: "t2", priority: 2, category: "补货", source: "月报", sourceLabel: "7月月报 · 进货建议",
+      title: "补货 葬送的芙莉莲吧唧（白情复刻）80 个",
+      affects: ["葬送的芙莉莲"],
+      ddl: "2026-08-15",
+      done: false,
+      steps: [
+        { title: "联系供应商", body: "微信找长期供应商，8/6 前确认库存与价格；预计 ¥8/件，¥640 总成本" },
+        { title: "下单与付款", body: "下单 80 个，付款 50% 订金 ¥320；保留订单截图" },
+        { title: "到货验收", body: "8/12 前到货，验收数量与质量；破损率 < 2% 才收货" },
+        { title: "上架与定价", body: "设置售价 ¥25/件，陈列在主推位；前 3 天 8.5 折试水" },
+      ]
+    },
+    {
+      id: "t3", priority: 1, category: "活动", source: "周报", sourceLabel: "本周周报 · 经营建议",
+      title: "参加周日 ChinaJoy 预热场漫展",
+      affects: [],
+      ddl: "2026-08-09",
+      done: false,
+      steps: [
+        { title: "档口预约", body: "联系漫展主办方确认 8/9 档口位置（最好在主通道 5m 内）" },
+        { title: "备货清单", body: "咒术回战 + 芙莉莲试水套装各 30 套；5 折清仓款 50 个（引流用）" },
+        { title: "物料准备", body: "桌布、扫码立牌、收款码、塑料袋、零钱 ¥200；店员 1 名兼职" },
+        { title: "现场陈列", body: "主推立牌正面展示；吧唧 5 个一组用透明袋装好，标 99 元" },
+        { title: "收摊复盘", body: "当晚盘点现金 + 销售，发布 1 条朋友圈现场图预热下次" },
+      ]
+    }
+  ],
+};
+
+/* =========================================================
+ * 路由
+ * ========================================================= */
+function navigate(page) {
+  state.page = page;
+  render();
+}
+
+/* =========================================================
+ * 渲染：根据当前屏渲染对应内容
+ * ========================================================= */
+function render() {
+  const root = $("#root");
+  // 还在 wizard 阶段
+  if (state.wizardStep < 3) {
+    root.innerHTML = renderWizard();
+    bindWizard();
+    return;
+  }
+  // 主应用
+  root.innerHTML = renderApp();
+  bindApp();
+}
+
+/* =========================================================
+ * 1. 登录 / 引导 屏
+ * ========================================================= */
+function renderWizard() {
+  // step 0: 手机号；1：验证码；2：店铺信息（店名/店主/位置） → 完成
+  const step = state.wizardStep;
+  const totalSteps = 3;
+  const steps = [
+    { title: "店长手机号登录",   desc: "请用店长本人手机号登录，验证码将自动展示在 Demo 流程中。" },
+    { title: "输入验证码",       desc: "我们已向 " + (state.phone || "手机号") + " 发送 6 位验证码。" },
+    { title: "填写店铺信息",     desc: "店名、店长、城市商圈——这些信息会一直同步到「我的店铺」页。" },
+  ];
+  const cur = steps[step];
+
+  return `
+    <div class="wizard">
+      <div class="wizard-head">
+        <div class="wizard-brand">
+          <div class="logo">谷</div>
+          <div>谷雨 · 谷子店管家</div>
+        </div>
+        <div class="badge-pill"><span class="dot"></span>Demo 演示环境</div>
+      </div>
+      <div class="wizard-body">
+        <div class="wizard-card">
+          <div class="wizard-steps">
+            ${[0,1,2].map(i => `<div class="step ${i <= step ? 'active' : ''}"></div>`).join("")}
+          </div>
+          <h2>${cur.title}</h2>
+          <p class="desc">${cur.desc}</p>
+
+          ${step === 0 ? renderPhoneStep() : ""}
+          ${step === 1 ? renderCodeStep() : ""}
+          ${step === 2 ? renderShopInfoStep() : ""}
+
+          <div class="wizard-actions">
+            <button class="btn btn-ghost" id="wiz-back" ${step === 0 ? "disabled" : ""}>← 上一步</button>
+            <div style="font-size:12px;color:var(--text-muted);">第 ${step+1} 步 / 共 ${totalSteps} 步</div>
+            <button class="btn btn-primary" id="wiz-next" ${canNext() ? "" : "disabled"}>${step === 2 ? "进入工作台 →" : "下一步 →"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPhoneStep() {
+  return `
+    <div class="form-group">
+      <label class="form-label">店长手机号</label>
+      <div class="input-with-prefix">
+        <span class="prefix">+86</span>
+        <input id="phone-input" class="form-input" type="tel" maxlength="11" placeholder="请输入 11 位手机号" value="${state.phone}" />
+      </div>
+      <div class="form-tip">Demo 演示，任意 11 位数字均可继续。</div>
+    </div>
+  `;
+}
+
+function renderCodeStep() {
+  return `
+    <div class="form-group">
+      <label class="form-label">验证码</label>
+      <div class="code-inputs">
+        ${state.code.map((v, i) => `<input type="tel" maxlength="1" data-idx="${i}" value="${v}" />`).join("")}
+      </div>
+      <div class="form-tip" style="color:var(--primary);margin-top:10px;">
+        <img src="icons/icon-sparkles.png" class="ico ico-sm" alt="" /> Demo 提示：验证码已自动填入 <strong>${state.code.join("") || "258013"}</strong>，直接下一步即可。
+      </div>
+    </div>
+  `;
+}
+
+function renderShopInfoStep() {
+  const cities = [
+    "上海市 静安区 漫展Mall",
+    "上海市 徐汇区 美罗城",
+    "北京市 朝阳区 三里屯",
+    "北京市 西城区 西单大悦城",
+    "广州市 天河区 天环广场",
+    "深圳市 南山区 万象天地",
+    "成都市 锦江区 春熙路",
+    "杭州市 西湖区 武林银泰",
+    "其他"
+  ];
+  return `
+    <div class="form-group">
+      <label class="form-label">店铺名称</label>
+      <input id="store-name-input" class="form-input" type="text" maxlength="30" placeholder="例如：小春日和·动漫谷子铺" value="${state.storeName}" />
+      <div class="form-tip">填什么就叫什么，店铺页和侧边栏都会同步显示。</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">店长姓名</label>
+      <input id="owner-input" class="form-input" type="text" maxlength="20" placeholder="例如：林老板" value="${state.owner}" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">店铺所在城市 / 商圈</label>
+      <select id="loc-select" class="form-select">
+        <option value="">请选择城市/商圈</option>
+        ${cities.map(c => `<option ${state.location === c ? "selected" : ""} value="${c}">${c}</option>`).join("")}
+      </select>
+      <div class="form-tip">谷雨会基于地域匹配最近的漫展档期、IP 热度分地域数据。</div>
+    </div>
+    <div class="form-group" style="background:var(--green-soft);border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;">
+      <img src="icons/icon-sparkles.png" class="ico ico-md" style="flex-shrink:0;margin-top:2px;" alt="" />
+      <div style="font-size:12px;color:var(--text-2);line-height:1.7;">
+        <strong>Demo 提示：</strong>进入工作台后，谷雨已自动注入 <strong>${MOCK.products.length}</strong> 个 SKU、<strong>${state.receipts.length}</strong> 条小票、<strong>${MOCK.ipTrends.length}</strong> 条 IP 热度数据，可直接体验 AI 诊断。
+      </div>
+    </div>
+  `;
+}
+
+function renderPosStep() {
+  return `
+    <div class="form-group">
+      <label class="form-label">选择您的收银系统</label>
+      <div class="pos-list" id="pos-list">
+        ${MOCK.posSystems.map(p => `
+          <div class="pos-item ${state.posId === p.id ? 'selected' : ''}" data-id="${p.id}">
+            <div class="icon">${p.icon}</div>
+            <div>
+              <div class="name">${p.name}</div>
+              <div class="meta">${p.meta}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+      <div class="form-tip">Demo 环境：选择后将进入模拟数据演示模式。</div>
+    </div>
+  `;
+}
+
+function renderReceiptStep() {
+  return `
+    <div class="form-group">
+      <label class="form-label">已识别到以下单据（来自收银系统）</label>
+      <div class="receipt-list">
+        <div class="receipt-row head">
+          <div>日期</div><div>商品</div><div class="right">数量</div><div class="right">金额</div>
+        </div>
+        ${state.receipts.map(r => `
+          <div class="receipt-row">
+            <div>${r.date}</div>
+            <div>${r.ip} · ${r.product}</div>
+            <div class="right num">${r.qty}</div>
+            <div class="right num">${fmt.money(r.amount)}</div>
+          </div>
+        `).join("")}
+      </div>
+      <div class="upload-area" id="upload-area">
+        <div style="font-size:24px;"><img src="icons/icon-camera.png" class="ico ico-lg" alt="" /></div>
+        <div style="margin-top:6px;font-size:13px;">点击上传纸质单据照片 / 手动新增一条</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px;">Demo 中可点击直接新增一条模拟数据</div>
+      </div>
+    </div>
+  `;
+}
+
+function canNext() {
+  const s = state.wizardStep;
+  if (s === 0) return /^\d{11}$/.test(state.phone);
+  if (s === 1) return state.code.every(v => v.length === 1);
+  if (s === 2) return state.storeName.trim().length > 0 && state.owner.trim().length > 0 && state.location.trim().length > 0;
+  return true;
+}
+
+function bindWizard() {
+  // 上一步/下一步
+  $("#wiz-back")?.addEventListener("click", () => {
+    if (state.wizardStep > 0) state.wizardStep--;
+    render();
+  });
+  $("#wiz-next")?.addEventListener("click", () => {
+    if (state.wizardStep < 2) {
+      state.wizardStep++;
+      if (state.wizardStep === 1 && state.code.every(v => !v)) {
+        // 自动填入验证码
+        state.code = "258013".split("");
+      }
+    } else {
+      state.wizardStep = 3; // 完成
+    }
+    render();
+  });
+
+  if (state.wizardStep === 0) {
+    const inp = $("#phone-input");
+    inp?.addEventListener("input", e => {
+      state.phone = e.target.value.replace(/\D/g, "").slice(0, 11);
+      e.target.value = state.phone;
+      // 控制下一步按钮状态
+      const next = $("#wiz-next");
+      if (next) next.disabled = !canNext();
+    });
+  }
+  if (state.wizardStep === 1) {
+    const inputs = $$(".code-inputs input");
+    const updateFilled = () => {
+      inputs.forEach((inp, i) => {
+        inp.classList.toggle("filled", !!state.code[i]);
+      });
+    };
+    inputs.forEach((inp, i) => {
+      inp.addEventListener("input", e => {
+        const v = e.target.value.replace(/\D/g, "").slice(0, 1);
+        state.code[i] = v;
+        e.target.value = v;
+        updateFilled();
+        if (v && i < inputs.length - 1) inputs[i+1].focus();
+        const next = $("#wiz-next");
+        if (next) next.disabled = !canNext();
+      });
+      inp.addEventListener("keydown", e => {
+        if (e.key === "Backspace" && !state.code[i] && i > 0) inputs[i-1].focus();
+        // 粘贴 6 位数字
+        if ((e.ctrlKey || e.metaKey) && e.key === "v") {
+          // 让默认粘贴行为发生，再在 input 事件里处理
+        }
+      });
+      inp.addEventListener("paste", e => {
+        e.preventDefault();
+        const data = (e.clipboardData || window.clipboardData).getData("text");
+        const digits = data.replace(/\D/g, "").slice(0, inputs.length).split("");
+        if (digits.length === 0) return;
+        for (let j = 0; j < digits.length; j++) {
+          state.code[i + j] = digits[j];
+          if (inputs[i + j]) inputs[i + j].value = digits[j];
+        }
+        updateFilled();
+        // 聚焦到下一个空位
+        const nextEmpty = state.code.findIndex(v => !v);
+        const focusIdx = nextEmpty >= 0 ? nextEmpty : Math.min(digits.length + i, inputs.length - 1);
+        inputs[focusIdx]?.focus();
+        const next = $("#wiz-next");
+        if (next) next.disabled = !canNext();
+      });
+    });
+    // 初始状态：把已填的格子标 .filled
+    updateFilled();
+    // 自动聚焦第一个空位
+    const firstEmpty = state.code.findIndex(v => !v);
+    if (firstEmpty >= 0) inputs[firstEmpty]?.focus();
+  }
+  if (state.wizardStep === 2) {
+    // 店铺名称
+    const nameInp = $("#store-name-input");
+    nameInp?.addEventListener("input", e => {
+      state.storeName = e.target.value;
+      const next = $("#wiz-next");
+      if (next) next.disabled = !canNext();
+    });
+    // 店长
+    const ownerInp = $("#owner-input");
+    ownerInp?.addEventListener("input", e => {
+      state.owner = e.target.value;
+      const next = $("#wiz-next");
+      if (next) next.disabled = !canNext();
+    });
+    // 位置
+    const sel = $("#loc-select");
+    sel?.addEventListener("change", e => {
+      state.location = e.target.value;
+      const next = $("#wiz-next");
+      if (next) next.disabled = !canNext();
+    });
+  }
+  // 删掉 wizard step 3/4 残留（POS 选择 + 收银小票录入已合并到店铺信息步骤）
+}
+
+/* =========================================================
+ * 2. 主应用 渲染
+ * ========================================================= */
+function renderApp() {
+  return `
+    <div class="app-shell">
+      ${renderSidebar()}
+      <div class="main">
+        ${renderTopbar()}
+        <div class="content">
+          ${state.page === "dashboard" ? renderDashboard() : ""}
+          ${state.page === "weekly"       ? renderWeekly()       : ""}
+          ${state.page === "monthly"      ? renderMonthly()      : ""}
+          ${state.page === "purchasePlan" ? renderPurchasePlan() : ""}
+          ${state.page === "store"        ? renderStore()        : ""}
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 经营助手 · 浮动入口 -->
+    <div class="ai-fab" id="ai-fab" title="谷雨 AI 经营问答">
+      <img src="icons/ai-advisor.png" alt="谷雨 AI" />
+      <div class="pulse-dot"></div>
+      <span class="badge">谷雨 AI 帮你解答</span>
+    </div>
+
+    <!-- AI 助手窗口 -->
+    <div class="ai-window" id="ai-window">
+      <div class="ai-head">
+        <img src="icons/ai-advisor.png" alt="" />
+        <div>
+          <div class="name">谷雨 · 谷子店长 AI</div>
+          <div class="sub">7×24 在线 · 库存/销量/利润/IP 热度 智能分析</div>
+        </div>
+        <span class="close" id="ai-close">×</span>
+      </div>
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg bot">
+          你好林老板！我是谷雨，7×24 帮你看店 👋
+          <div class="msg-meta">刚刚</div>
+        </div>
+      </div>
+      <div class="ai-quick" id="ai-quick">
+        ${AIAdvisor.QUICK_QUESTIONS.map(q => `<button data-q="${q.text}">${q.icon} ${q.text.slice(0, 18)}${q.text.length > 18 ? '...' : ''}</button>`).join('')}
+      </div>
+      <div class="ai-input">
+        <input id="ai-input" type="text" placeholder="问问谷雨..." maxlength="120" />
+        <button id="ai-send">发送</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderSidebar() {
+  const items = [
+    { id: "dashboard",    icon: "home",         label: "今日看板" },
+    { id: "weekly",       icon: "calendar",     label: "周报" },
+    { id: "monthly",      icon: "chart-up",     label: "月报" },
+    { id: "purchasePlan", icon: "package",      label: "进货计划" },
+  ];
+  return `
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">谷</div>
+        <div class="title">谷雨 · 谷子管家<small>AI 经营助手</small></div>
+      </div>
+      <div class="section-label">经营</div>
+      <nav class="nav">
+        ${items.map(i => `
+          <div class="nav-item ${state.page === i.id ? 'active' : ''}" data-nav="${i.id}">
+            <span class="ico">${icon(i.icon, "ico-nav")}</span>
+            <span>${i.label}</span>
+          </div>
+        `).join("")}
+        <div class="nav-item ${state.page === 'store' ? 'active' : ''}" data-nav="store">
+          <span class="ico">${icon("store", "ico-nav")}</span>
+          <span>我的店铺</span>
+        </div>
+      </nav>
+      <div class="store-card">
+        <div class="avatar">${(state.owner || MOCK.store.owner)[0]}</div>
+        <div>
+          <div class="name">${state.storeName || MOCK.store.name}</div>
+          <div class="meta">${state.location || MOCK.store.location}</div>
+        </div>
+      </div>
+    </aside>
+  `;
+}
+
+function renderTopbar() {
+  const titles = { dashboard: "今日看板", weekly: "周报", monthly: "月报", purchasePlan: "进货计划", store: "我的店铺" };
+  return `
+    <div class="topbar">
+      <div class="crumbs">
+        <span>谷雨</span><span>›</span><span class="now">${titles[state.page]}</span>
+      </div>
+      <div class="topbar-right">
+        <div class="badge-pill"><span class="dot"></span>今日 ${new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "long" })}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ----- 看板 ----- */
+function renderDashboard() {
+  // 关键指标
+  const todayOrders = MOCK.products.reduce((s, p) => s + p.soldToday, 0);
+  const todayRevenue = MOCK.products.reduce((s, p) => s + p.soldToday * p.price, 0);
+  const inventoryValue = MOCK.products.reduce((s, p) => s + p.stock * p.cost, 0);
+  const slowCount = MOCK.products.filter(p => p.daysSinceSale >= 3).length;
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>今日看板</h1>
+        <div class="sub">林老板好，今天的店铺情况一目了然，先处理风险再看经营建议。</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card clickable" data-modal="order-detail">
+        <div class="label">今日订单数 <span class="tag" style="margin-left:6px;">可点击</span></div>
+        <div class="value num">${todayOrders}</div>
+        <div class="delta up">↑ 较昨日 +3 单</div>
+        <div class="arrow">查看详情 →</div>
+      </div>
+      <div class="stat-card clickable" data-modal="inventory-detail">
+        <div class="label">库存总价值 <span class="tag" style="margin-left:6px;">可点击</span></div>
+        <div class="value num">${fmt.money(inventoryValue)}</div>
+        <div class="delta">共 ${MOCK.products.length} 个 SKU</div>
+        <div class="arrow">查看占比 →</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">滞销预警 SKU</div>
+        <div class="value num">${slowCount}</div>
+        <div class="delta down">3 天未售 ${MOCK.products.filter(p=>p.daysSinceSale>=3 && p.daysSinceSale<7).length} 个 · 7 天未售 ${MOCK.products.filter(p=>p.daysSinceSale>=7).length} 个</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">今日销售额</div>
+        <div class="value num">${fmt.money(todayRevenue)}</div>
+        <div class="delta up">↑ 较昨日 +12.4%</div>
+      </div>
+    </div>
+
+    ${renderTodosPanel()}
+
+    <div class="panel-grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <h3><img src="icons/icon-package.png" class="ico ico-lg" alt="" /> 今日库存风险提醒</h3>
+          <div class="meta">3 条</div>
+        </div>
+        <div class="alert-list">
+          ${MOCK.risks.map(r => `
+            <div class="alert-item">
+              <div class="ico ${r.level}">${icon(r.icon, "ico-md")}</div>
+              <div class="body">
+                <div class="title">${r.title}</div>
+                <div class="desc">${r.desc}</div>
+                <div class="meta">
+                  <span class="tag ${r.level === 'danger' ? 'tag-danger' : 'tag-warning'}">${r.level === 'danger' ? '紧急' : '关注'}</span>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3><img src="icons/icon-fire.png" class="ico ico-lg" alt="" /> IP 热度异动</h3>
+          <div class="meta">${MOCK.ipTrends.length} 条</div>
+        </div>
+        <div class="alert-list">
+          ${MOCK.ipTrends.map((t, i) => {
+            const applied = state.purchasePlan.some(p => p.ip === t.ip);
+            return `
+            <div class="alert-item">
+              <div class="ico ${t.delta > 0 ? 'success' : 'warning'}" data-modal="ip-trend" data-idx="${i}" style="cursor:pointer;">${t.delta > 0 ? icon("chart-up","ico-md") : icon("chart-down","ico-md")}</div>
+              <div class="body" data-modal="ip-trend" data-idx="${i}" style="cursor:pointer;flex:1;min-width:0;">
+                <div class="title">${t.ip} <span class="tag ${t.delta>0?'tag-success':'tag-warning'}" style="margin-left:6px;">${t.delta>0?"+":""}${t.delta}%</span></div>
+                <div class="desc">${t.reason}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                ${applied
+                  ? `<span class="tag tag-info" style="font-size:10px;">✓ 已加入进货计划</span>`
+                  : `<button class="btn btn-primary btn-sm" data-ip-apply="${t.ip}" data-heat="${t.delta}">+ 应用到进货计划</button>`}
+              </div>
+            </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-lightbulb.png" class="ico ico-lg" alt="" /> 经营小建议</h3>
+        <div class="meta">基于近 30 天数据 · 谷雨 AI 生成</div>
+      </div>
+      <div class="panel-grid-3" style="gap:14px;">
+        ${MOCK.advice.map(a => `
+          <div class="alert-item" style="background:#fff;">
+            <div class="ico ${a.level}">${icon(a.icon, "ico-md")}</div>
+            <div class="body">
+              <div class="title">${a.title}</div>
+              <div class="desc">${a.desc}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ----- 今日待办面板 ----- */
+function renderTodosPanel() {
+  // 按优先级排序（3=紧急 最高 -> 1=普通 最低），未完成优先
+  const sorted = [...state.todos].sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return b.priority - a.priority;
+  });
+  const doneCount = state.todos.filter(t => t.done).length;
+  const total = state.todos.length;
+
+  if (total === 0) {
+    return `
+      <div class="panel">
+        <div class="panel-head">
+          <h3><img src="icons/icon-memo.png" class="ico ico-lg" alt="" /> 今日待办</h3>
+          <div class="meta">手把手教学 · 按重要性划分</div>
+        </div>
+        <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">
+          ✓ 暂无待办，去 <a href="#" data-nav="monthly" style="color:var(--primary);">月报</a> 制定你的清仓 / 补货计划吧
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-memo.png" class="ico ico-lg" alt="" /> 今日待办 <span class="tag" style="margin-left:6px;">已完成 ${doneCount} / ${total}</span></h3>
+        <div class="meta">手把手教学 · 紧急/中等/普通 三档优先级</div>
+      </div>
+      <div class="todo-list">
+        ${sorted.map(t => `
+          <div class="todo-item ${t.done ? 'done' : ''}" data-priority="${t.priority}" data-todo="${t.id}">
+            <div class="todo-bar"></div>
+            <div>
+              <div class="todo-title">
+                <span class="tag ${t.priority===3?'tag-danger':t.priority===2?'tag-warning':'tag-info'}">${t.priority===3?'紧急':t.priority===2?'中等':'普通'}</span>
+                <span class="tag tag-gray">${t.category}</span>
+                <span>${t.title}</span>
+              </div>
+              <div class="todo-meta">
+                <span class="todo-source">📍 ${t.sourceLabel}</span>
+                ${t.affects.length > 0 ? `<span>· 涉及 ${t.affects.join('、')}</span>` : ''}
+                ${t.ddl ? `<span>· DDL ${t.ddl}</span>` : ''}
+                <span>· ${t.steps.length} 步</span>
+              </div>
+            </div>
+            <div class="todo-actions">
+              <button class="btn btn-sm" data-todo-detail="${t.id}">查看教学</button>
+              ${t.done
+                ? `<button class="btn btn-ghost btn-sm" data-todo-reopen="${t.id}">↺ 重启</button>`
+                : `<button class="btn btn-primary btn-sm" data-todo-done="${t.id}">✓ 完成</button>`
+              }
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ----- 周报 ----- */
+function renderWeekly() {
+  // 滞销分级
+  const tier1 = MOCK.products.filter(p => p.daysSinceSale >= 7);  // 紧急
+  const tier2 = MOCK.products.filter(p => p.daysSinceSale >= 3 && p.daysSinceSale < 7); // 严重
+  const tier3 = MOCK.products.filter(p => p.daysSinceSale >= 1 && p.daysSinceSale < 3); // 观察
+  const tierValue = (arr) => arr.reduce((s, p) => s + p.stock * p.cost, 0);
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>本周经营周报</h1>
+        <div class="sub">覆盖 ${getThisWeekRange()} · 数据基于 18 个 SKU · 谷雨 AI 模拟生成</div>
+      </div>
+      ${state.generated
+        ? `<button class="btn" id="regen">重新生成</button>`
+        : `<button class="btn btn-primary" id="generate"><img src="icons/icon-lightning.png" class="ico ico-sm" alt="" /> 一键生成本周报告</button>`
+      }
+    </div>
+
+    ${!state.generated ? `
+      <div class="panel" style="text-align:center;padding:60px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;"><img src="icons/icon-chart.png" class="ico ico-3x" alt="" /></div>
+        <h3 style="font-size:16px;margin-bottom:6px;">点击上方按钮，让谷雨 AI 为您生成一份经营周报</h3>
+        <div style="color:var(--text-muted);font-size:13px;">报告包含：滞销分级清单 · 清仓方案 · 下周进货清单</div>
+      </div>
+    ` : renderWeeklyGenerated(tier1, tier2, tier3, tierValue)}
+  `;
+}
+
+function getThisWeekRange() {
+  const today = new Date();
+  const day = today.getDay() || 7;
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - day + 1);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  return `${mon.toLocaleDateString("zh-CN")} ~ ${sun.toLocaleDateString("zh-CN")}`;
+}
+
+function renderWeeklyGenerated(t1, t2, t3, tierValue) {
+  return `
+    <div class="tier-grid">
+      <div class="tier-card urgent">
+        <div class="tier-head">
+          <div class="tier-name"><img src="icons/icon-sos.png" class="ico ico-lg" alt="" /> 紧急清仓 · 7 天未售</div>
+          <span class="tag tag-danger">${t1.length} SKU</span>
+        </div>
+        <div class="tier-desc">超过 7 天未售出，资金占用高，必须立即处理</div>
+        <div class="tier-stat">
+          <div><span class="v num">${fmt.money(tierValue(t1))}</span>资金占用</div>
+          <div><span class="v num">${t1.reduce((s,p)=>s+p.stock,0)}</span>库存件数</div>
+        </div>
+      </div>
+      <div class="tier-card serious">
+        <div class="tier-head">
+          <div class="tier-name"><img src="icons/icon-warning.png" class="ico ico-lg" alt="" /> 严重滞销 · 3-6 天未售</div>
+          <span class="tag tag-warning">${t2.length} SKU</span>
+        </div>
+        <div class="tier-desc">销售明显放缓，建议本周内启动促销</div>
+        <div class="tier-stat">
+          <div><span class="v num">${fmt.money(tierValue(t2))}</span>资金占用</div>
+          <div><span class="v num">${t2.reduce((s,p)=>s+p.stock,0)}</span>库存件数</div>
+        </div>
+      </div>
+      <div class="tier-card watch">
+        <div class="tier-head">
+          <div class="tier-name"><img src="icons/icon-eye.png" class="ico ico-lg" alt="" /> 关注观察 · 1-2 天未售</div>
+          <span class="tag tag-info">${t3.length} SKU</span>
+        </div>
+        <div class="tier-desc">短期波动，可调整陈列或微调价格</div>
+        <div class="tier-stat">
+          <div><span class="v num">${fmt.money(tierValue(t3))}</span>资金占用</div>
+          <div><span class="v num">${t3.reduce((s,p)=>s+p.stock,0)}</span>库存件数</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-broom.png" class="ico ico-lg" alt="" /> 清仓方案（点击查看详细手把手指南）</h3>
+        <div class="meta">选择后 → 制定专属清仓小计划 + 必做清单 + DDL</div>
+      </div>
+      <div class="clearance-list" id="clearance-list">
+        ${renderClearanceItem({
+          level: "紧急", tier: t1,
+          title: "组合方案 A：超低折扣 5 折 + 漫展出摊",
+          desc: "针对 7+ 天未售的 SKU，建议 5 折出清，并结合本周末漫展摆摊，预计 14 天清完。",
+          expected: "回款率约 60% · 减少资金占用 ¥" + tierValue(t1) + " · 损耗 8%",
+        })}
+        ${renderClearanceItem({
+          level: "严重", tier: t2,
+          title: "组合方案 B：8 折 + 满 2 件减 10 元",
+          desc: "针对 3-6 天未售的 SKU，采用价格弹性促销，预计 10 天内清完。",
+          expected: "回款率约 80% · 减少资金占用 ¥" + tierValue(t2) + " · 损耗 5%",
+        })}
+        ${renderClearanceItem({
+          level: "观察", tier: t3,
+          title: "组合方案 C：调整陈列 + 小红书种草",
+          desc: "针对 1-2 天未售 SKU，不打价格战，靠曝光与陈列提升转化。",
+          expected: "回款率约 95% · 损耗 2% · 提升品牌粘性",
+        })}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-download.png" class="ico ico-lg" alt="" /> 下周进货清单（点击查看推荐依据）</h3>
+        <div class="meta">基于热度异动 + 滞销补缺 + 季节档期</div>
+      </div>
+      <div class="purchase-list">
+        ${[
+          { rank: 1, ip: "葬送的芙莉莲", name: "芙莉莲 吧唧（白情复刻）", qty: 30, reason: "热度 +38%，近 7 天搜索量 +62%，本月底剧场版上映" },
+          { rank: 2, ip: "葬送的芙莉莲", name: "欣梅尔 亚克力立牌",     qty: 20, reason: "新角色热度爬升，二创量 +38%，库存告急（剩 9）" },
+          { rank: 3, ip: "孤独摇滚",     name: "后藤一里 谷子套装",     qty: 15, reason: "持续热卖 SKU，本周已售 6 件，断货风险" },
+          { rank: 4, ip: "蓝色监狱",     name: "凪诚士郎 亚克力（新色）", qty: 20, reason: "角色稳居热度榜 Top 3，现有库存仅 6 件" },
+          { rank: 5, ip: "咒术回战",     name: "五条悟 拍立得套装",     qty: 12, reason: "经典款仍有稳定需求，需补充断货 SKU" },
+        ].map(p => `
+          <div class="purchase-item clickable" data-modal="purchase-reason" data-rank="${p.rank}">
+            <div class="pi-rank">${p.rank}</div>
+            <div>
+              <div class="pi-name">${p.name}</div>
+              <div class="pi-ip">${p.ip} · 预计到货 ${new Date(Date.now() + 5*86400000).toLocaleDateString("zh-CN")}</div>
+            </div>
+            <div class="pi-side">
+              <div class="pi-qty num">${p.qty}</div>
+              <div class="tag" style="margin-top:4px;">查看依据</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderClearanceItem(opt) {
+  return `
+    <div class="clearance-item" data-modal="clearance-detail" data-level="${opt.level}">
+      <div>
+        <div class="ci-head">
+          <span class="tag ${opt.level==='紧急'?'tag-danger':opt.level==='严重'?'tag-warning':'tag-info'}">${opt.level} · ${opt.tier.length} SKU</span>
+          <span class="ci-name">${opt.title}</span>
+        </div>
+        <div class="ci-meta">${opt.desc}</div>
+        <div class="ci-meta" style="margin-top:6px;color:var(--primary-dark);font-weight:500;">预期：${opt.expected}</div>
+      </div>
+      <button class="btn btn-primary btn-sm">查看详细教学 →</button>
+    </div>
+  `;
+}
+
+/* ----- 月报 ----- */
+function renderMonthly() {
+  const m = MOCK.monthly;
+  return `
+    <div class="page-head">
+      <div>
+        <h1>7 月经营月报</h1>
+        <div class="sub">月度核心指标 · IP 生命周期 · 进货建议 · 清仓建议 · 谷雨 AI 模拟生成</div>
+      </div>
+      <div>
+        <select class="form-select" style="width:140px;">
+          <option>2026 年 7 月</option>
+          <option>2026 年 6 月</option>
+          <option>2026 年 5 月</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="monthly-grid">
+      <div class="metric-card green">
+        <div class="accent-bar"></div>
+        <div class="label">月度毛利</div>
+        <div class="value num">${fmt.money(m.gross)}</div>
+        <div class="sub">毛利率 <strong>${m.grossRate}%</strong> · ↑ 较上月 +3.2pp</div>
+      </div>
+      <div class="metric-card red">
+        <div class="accent-bar"></div>
+        <div class="label">月度损耗</div>
+        <div class="value num">${fmt.money(m.wasteAmount)}</div>
+        <div class="sub">损耗率 <strong>${m.wasteRate}%</strong> · ↑ 较上月 +1.1pp</div>
+      </div>
+      <div class="metric-card amber">
+        <div class="accent-bar"></div>
+        <div class="label">资金占用</div>
+        <div class="value num">${fmt.money(m.capitalOccupied)}</div>
+        <div class="sub">周转天数 <strong>${m.capitalTurnoverDays} 天</strong> · 行业均值 18 天</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-sprout.png" class="ico ico-lg" alt="" /> IP 生命周期判断</h3>
+        <div class="meta">基于热度 + 销售 + 库存周转</div>
+      </div>
+      <div class="lifecycle-list">
+        ${MOCK.lifecycle.sort((a,b)=>b.score-a.score).map(l => `
+          <div class="lifecycle-item">
+            <div class="li-ip">${l.ip}<small>${l.note}</small></div>
+            <div>
+              ${l.stage === "成长" ? '<span class="tag tag-success">成长期</span>' :
+                l.stage === "成熟" ? '<span class="tag tag-info">成熟期</span>' :
+                '<span class="tag tag-danger">衰退期</span>'}
+            </div>
+            <div class="li-bar"><span style="width:${l.score}%; background:${l.stage==='成长'?'var(--success)':l.stage==='成熟'?'var(--info)':'var(--danger)'}"></span></div>
+            <div class="num" style="text-align:right;font-weight:600;">${l.score}<small style="color:var(--text-muted);font-weight:400;">/100</small></div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-download.png" class="ico ico-lg" alt="" /> 本月进货建议</h3>
+        <div class="meta">基于 IP 生命周期 + 季节档期 · 6 条建议</div>
+      </div>
+      <div class="monthly-purchase">
+        ${MOCK.monthlyPurchase.map(p => `
+          <div class="mp-item">
+            <div class="mp-rank">${p.rank}</div>
+            <div>
+              <div class="mp-name">${p.name} ${p.stage === "成长" ? '<span class="tag tag-success" style="margin-left:6px;">成长期</span>' : '<span class="tag tag-info" style="margin-left:6px;">成熟期</span>'}</div>
+              <div class="mp-meta">${p.ip} · ${p.reason}</div>
+            </div>
+            <div class="mp-side">
+              <div class="mp-qty num">+${p.qty}</div>
+              <div class="mp-impact">${p.impact}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3><img src="icons/icon-broom.png" class="ico ico-lg" alt="" /> 本月清仓建议</h3>
+        <div class="meta">基于月度销售 + 衰退期判断 · 3 套方案</div>
+      </div>
+      <div class="monthly-clearance">
+        ${MOCK.monthlyClearance.map(c => `
+          <div class="mc-card ${c.id}">
+            <div class="mc-head">
+              <span class="tag ${c.level==='紧急'?'tag-danger':c.level==='严重'?'tag-warning':'tag-info'}">${c.level} · ${c.affects.length} 个 IP</span>
+              <span class="mc-title">${c.title}</span>
+            </div>
+            <div class="mc-desc">${c.desc}</div>
+            <div class="mc-expected">📊 预期：<strong>${c.expected}</strong></div>
+            <div class="mc-actions">
+              <button class="btn btn-sm" data-mc-detail="${c.id}">查看 5 步教学</button>
+              <button class="btn btn-primary btn-sm" data-mc-plan="${c.id}">✓ 制定清仓 To Do</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ----- 进货计划 ----- */
+function renderPurchasePlan() {
+  const plan = state.purchasePlan || [];
+  // 预测链展示（用 MOCK.ipTrends + MOCK.products 跑预测模型）
+  const trends = MOCK.ipTrends || [];
+  // 上升期 IP
+  const upIps = trends.filter(t => t.delta > 0).map(t => t.ip);
+  const downIps = trends.filter(t => t.delta < 0).map(t => t.ip);
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>进货计划</h1>
+        <div class="sub">从周报 / 月报应用的进货建议 · 谷雨 AI 预测链驱动</div>
+      </div>
+      <div class="head-actions">
+        ${plan.length > 0 ? `<span class="tag tag-success">已规划 ${plan.length} 项</span>` : ''}
+        ${plan.length > 0 ? `<button class="btn" data-action="clear-purchase-plan">清空</button>` : ''}
+      </div>
+    </div>
+
+    ${plan.length === 0 ? `
+      <div class="panel" style="text-align:center;padding:60px 20px;">
+        <img src="icons/icon-package.png" class="ico ico-3x" alt="" style="opacity:0.6;" />
+        <h3 style="font-size:16px;margin:14px 0 6px;">还没有进货计划</h3>
+        <div style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">去「周报」→「IP 热度异动」中点击「+ 应用到进货计划」即可加入</div>
+        <button class="btn btn-primary" data-nav="weekly">前往周报 →</button>
+      </div>
+    ` : `
+      <div class="panel">
+        <div class="panel-head">
+          <h3><img src="icons/icon-package.png" class="ico ico-lg" alt="" /> 已应用的进货建议</h3>
+          <div class="meta">按热度 / 库存 / 利润 优先级排序</div>
+        </div>
+        <div class="purchase-list">
+          ${plan.sort((a,b) => (b.heatDelta || 0) - (a.heatDelta || 0)).map((p, i) => `
+            <div class="purchase-item ${p.done ? 'done' : ''}" data-purchase-id="${p.id}">
+              <div class="purchase-num">${i + 1}</div>
+              <div style="flex:1;min-width:0;">
+                <div class="purchase-title">
+                  <span class="tag ${(p.heatDelta||0) > 0 ? 'tag-success' : 'tag-warning'}">${(p.heatDelta||0) > 0 ? '热度↑' : '热度↓'}</span>
+                  <strong>${p.ip}</strong>
+                  ${p.done ? '<span class="tag tag-info" style="margin-left:4px;">已下单</span>' : ''}
+                </div>
+                <div class="purchase-meta">${p.reason || '基于 IP 热度建议'}</div>
+                ${p.suggestedQty ? `<div class="purchase-qty">建议数量：<strong>${p.suggestedQty}</strong> 个 · 预计投入 <strong>¥${fmt.money((p.suggestedQty || 0) * (p.cost || 0))}</strong></div>` : ''}
+              </div>
+              <div class="purchase-actions">
+                ${p.done
+                  ? `<button class="btn btn-ghost btn-sm" data-purchase-reopen="${p.id}">↺ 重启</button>`
+                  : `<button class="btn btn-primary btn-sm" data-purchase-done="${p.id}">✓ 已下单</button>`}
+                <button class="btn btn-ghost btn-sm" data-purchase-del="${p.id}">删除</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `}
+
+    <div class="panel" style="background:linear-gradient(135deg, var(--green-soft) 0%, #fff 100%);">
+      <div class="panel-head">
+        <h3><img src="icons/icon-chart.png" class="ico ico-lg" alt="" /> 谷雨 AI · 进货预测链</h3>
+        <div class="meta">从情报到清单 · 6 步全链路</div>
+      </div>
+      <div class="pred-chain">
+        <div class="pred-step">
+          <div class="pred-num">1</div>
+          <div class="pred-content">
+            <div class="pred-title">IP 情报输入</div>
+            <div class="pred-desc">从贴吧 / 小红书 / 微博 / 淘宝 抓取每日 ${trends.length} 个 IP 热度信号</div>
+            <div class="pred-trend">
+              ${trends.map(t => `<span class="tag ${t.delta > 0 ? 'tag-success' : 'tag-warning'}" style="margin:2px;">${t.ip} ${t.delta > 0 ? '+' : ''}${t.delta}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="pred-arrow">↓</div>
+        <div class="pred-step">
+          <div class="pred-num">2</div>
+          <div class="pred-content">
+            <div class="pred-title">多维热度量化</div>
+            <div class="pred-desc">搜索量 / 讨论量 / 销售量 / 二创量 → 0-200 分热度指数</div>
+            <div class="pred-trend">${upIps.length} 个上升 · ${downIps.length} 个下行</div>
+          </div>
+        </div>
+        <div class="pred-arrow">↓</div>
+        <div class="pred-step">
+          <div class="pred-num">3</div>
+          <div class="pred-content">
+            <div class="pred-title">热度生命周期预测</div>
+            <div class="pred-desc">根据 7 天曲线判断：导入期 / 上升期 / 巅峰期 / 衰退期 / 休眠期</div>
+            <div class="pred-trend">
+              ${trends.map(t => `<span style="font-size:11px;color:var(--text-2);margin-right:8px;">${t.ip}：${t.delta > 5 ? '上升期' : t.delta < -5 ? '衰退期' : '稳定期'}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="pred-arrow">↓</div>
+        <div class="pred-step">
+          <div class="pred-num">4</div>
+          <div class="pred-content">
+            <div class="pred-title">安全库存模型</div>
+            <div class="pred-desc">安全库存 = 上周销量 × 2 × 生命周期系数</div>
+            <div class="pred-trend">芙莉莲 30 / 孤独摇滚 25 / 蓝色监狱 20（举例）</div>
+          </div>
+        </div>
+        <div class="pred-arrow">↓</div>
+        <div class="pred-step">
+          <div class="pred-num">5</div>
+          <div class="pred-content">
+            <div class="pred-title">利润-风险模拟</div>
+            <div class="pred-desc">补货 N 件 → 预期毛利 - 滞销概率 × 损失 → 期望收益</div>
+            <div class="pred-trend">每次进货决策都跑 1000 次蒙特卡洛模拟</div>
+          </div>
+        </div>
+        <div class="pred-arrow">↓</div>
+        <div class="pred-step final">
+          <div class="pred-num">6</div>
+          <div class="pred-content">
+            <div class="pred-title">最终采购清单 <span class="tag tag-success" style="margin-left:6px;">输出</span></div>
+            <div class="pred-desc">每行：IP / 商品 / 数量 / 单价 / 总成本 / 期望毛利 / 风险等级</div>
+            <div class="pred-trend">${upIps.length > 0 ? `本次建议优先进货：${upIps.join('、')}` : '当前无明显上升期 IP'}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ----- 我的店铺 ----- */
+function renderStore() {
+  // 读 state，回落到 MOCK 默认值
+  const s = {
+    name:     state.storeName || MOCK.store.name,
+    owner:    state.owner     || MOCK.store.owner,
+    phone:    state.phone     || MOCK.store.phone,
+    location: state.location  || MOCK.store.location,
+  };
+  const editing = state._editingStore;
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>我的店铺</h1>
+        <div class="sub">店铺基础信息 · 与 wizard 实时同步</div>
+      </div>
+      ${editing ? '' : `<button class="btn" data-action="edit-store"><img src="icons/icon-edit.png" class="ico ico-sm" alt="" /> 编辑</button>`}
+    </div>
+
+    <div class="store-info">
+      <div class="panel-head" style="margin-bottom:12px;">
+        <h3>店铺信息</h3>
+        <div class="meta">${editing ? '修改后立即同步到全店' : '基础资料用于 AI 诊断的地域 / 客群校准'}</div>
+      </div>
+      <div class="store-info-grid">
+        <div class="si-cell">
+          <div class="k">店铺名称</div>
+          ${editing
+            ? `<input id="edit-store-name" class="form-input" type="text" maxlength="30" value="${s.name}" style="margin-top:4px;" />`
+            : `<div class="v">${s.name}</div>`}
+        </div>
+        <div class="si-cell">
+          <div class="k">店长</div>
+          ${editing
+            ? `<input id="edit-owner" class="form-input" type="text" maxlength="20" value="${s.owner}" style="margin-top:4px;" />`
+            : `<div class="v">${s.owner}</div>`}
+        </div>
+        <div class="si-cell">
+          <div class="k">手机号</div>
+          <div class="v num">${s.phone}</div>
+        </div>
+        <div class="si-cell">
+          <div class="k">店铺位置</div>
+          ${editing
+            ? `<select id="edit-loc" class="form-select" style="margin-top:4px;">
+                ${["上海市 静安区 漫展Mall","上海市 徐汇区 美罗城","北京市 朝阳区 三里屯","北京市 西城区 西单大悦城","广州市 天河区 天环广场","深圳市 南山区 万象天地","成都市 锦江区 春熙路","杭州市 西湖区 武林银泰","其他"].map(c => `<option ${s.location===c?'selected':''} value="${c}">${c}</option>`).join('')}
+              </select>`
+            : `<div class="v">${s.location}</div>`}
+        </div>
+        <div class="si-cell">
+          <div class="k">SKU 数量</div>
+          <div class="v num">${MOCK.products.length} 个</div>
+        </div>
+        <div class="si-cell">
+          <div class="k">已录入单据</div>
+          <div class="v num">${state.receipts.length} 条</div>
+        </div>
+      </div>
+      ${editing ? `
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-primary" data-action="save-store">保存</button>
+          <button class="btn btn-ghost" data-action="cancel-store">取消</button>
+        </div>
+      ` : ''}
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>近期单据</h3>
+        <div class="meta">最近 ${Math.min(8, state.receipts.length)} 条</div>
+      </div>
+      <div class="receipt-list">
+        <div class="receipt-row head">
+          <div>日期</div><div>商品</div><div class="right">数量</div><div class="right">金额</div>
+        </div>
+        ${state.receipts.slice(0, 8).map(r => `
+          <div class="receipt-row">
+            <div>${r.date}</div>
+            <div>${r.ip} · ${r.product}</div>
+            <div class="right num">${r.qty}</div>
+            <div class="right num">${fmt.money(r.amount)}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ----- App 事件绑定 ----- */
+function bindApp() {
+  $$(".nav-item").forEach(el => {
+    el.addEventListener("click", () => navigate(el.dataset.nav));
+  });
+
+  // 看板：弹窗入口
+  $$("[data-modal]").forEach(el => {
+    el.addEventListener("click", () => {
+      const name = el.dataset.modal;
+      const idx = el.dataset.idx;
+      openModal(name, idx);
+    });
+  });
+
+  // 周报：生成 / 重新生成
+  $("#generate")?.addEventListener("click", () => {
+    state.generated = true;
+    render();
+  });
+  $("#regen")?.addEventListener("click", () => {
+    state.generated = false;
+    setTimeout(() => { state.generated = true; render(); }, 200);
+  });
+
+  // 我的店铺：两个操作卡
+  $$("[data-action]").forEach(el => {
+    el.addEventListener("click", () => {
+      const act = el.dataset.action;
+      if (act === "add-receipt") openModal("add-receipt");
+      if (act === "modify-pos") openModal("modify-pos");
+    });
+  });
+
+  // 月报：清仓建议 - 查看详情 / 制定 To Do
+  $$("[data-mc-detail]").forEach(el => {
+    el.addEventListener("click", () => openModal("monthly-clearance-detail", el.dataset.mcDetail));
+  });
+  $$("[data-mc-plan]").forEach(el => {
+    el.addEventListener("click", () => openModal("monthly-clearance-plan", el.dataset.mcPlan));
+  });
+
+  // 看板 To Do：查看教学 / 完成 / 重启
+  $$("[data-todo-detail]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      openModal("todo-detail", el.dataset.todoDetail);
+    });
+  });
+  $$("[data-todo-done]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      const todo = state.todos.find(t => t.id === el.dataset.todoDone);
+      if (todo) todo.done = true;
+      render();
+    });
+  });
+  $$("[data-todo-reopen]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      const todo = state.todos.find(t => t.id === el.dataset.todoReopen);
+      if (todo) todo.done = false;
+      render();
+    });
+  });
+  // 点击 To Do 整行也可打开详情
+  $$("[data-todo]").forEach(el => {
+    el.addEventListener("click", () => openModal("todo-detail", el.dataset.todo));
+  });
+
+  // 看板空状态：跳到月报
+  $$("[data-nav]").forEach(el => {
+    if (el.closest(".nav-item")) return; // 跳过 nav
+    el.addEventListener("click", e => {
+      e.preventDefault();
+      navigate(el.dataset.nav);
+    });
+  });
+
+  // === 周报 IP 异动：应用到进货计划 ===
+  $$("[data-ip-apply]").forEach(b => {
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      const ip = e.currentTarget.dataset.ipApply;
+      const heat = parseInt(e.currentTarget.dataset.heat || "0");
+      addToPurchasePlan(ip, heat);
+    });
+  });
+
+  // === 进货计划：操作按钮 ===
+  $$("[data-purchase-done]").forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.purchaseDone;
+    const it = state.purchasePlan.find(p => p.id === id);
+    if (it) it.done = true;
+    render();
+  }));
+  $$("[data-purchase-reopen]").forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.purchaseReopen;
+    const it = state.purchasePlan.find(p => p.id === id);
+    if (it) it.done = false;
+    render();
+  }));
+  $$("[data-purchase-del]").forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.purchaseDel;
+    state.purchasePlan = state.purchasePlan.filter(p => p.id !== id);
+    render();
+  }));
+  $$("[data-action='clear-purchase-plan']").forEach(b => b.addEventListener("click", e => {
+    if (confirm("清空所有进货计划？")) {
+      state.purchasePlan = [];
+      render();
+    }
+  }));
+
+  // === 我的店铺：编辑 ===
+  $$("[data-action='edit-store']").forEach(b => b.addEventListener("click", e => {
+    e.preventDefault();
+    state._editingStore = true;
+    render();
+  }));
+  $$("[data-action='cancel-store']").forEach(b => b.addEventListener("click", e => {
+    e.preventDefault();
+    state._editingStore = false;
+    render();
+  }));
+  $$("[data-action='save-store']").forEach(b => b.addEventListener("click", e => {
+    e.preventDefault();
+    const name = $("#edit-store-name")?.value?.trim() || "";
+    const owner = $("#edit-owner")?.value?.trim() || "";
+    const loc = $("#edit-loc")?.value?.trim() || "";
+    if (!name || !owner || !loc) {
+      alert("店名 / 店长 / 位置 都得填～");
+      return;
+    }
+    state.storeName = name;
+    state.owner = owner;
+    state.location = loc;
+    state._editingStore = false;
+    render();
+  }));
+
+  // === AI 经营助手 ===
+  bindAI();
+}
+
+/* ============================================================
+ * 进货计划：添加
+ * ============================================================ */
+function addToPurchasePlan(ip, heatDelta) {
+  if (state.purchasePlan.some(p => p.ip === ip)) {
+    toast("「" + ip + "」已经在进货计划里了");
+    return;
+  }
+  const trend = MOCK.ipTrends.find(t => t.ip === ip);
+  const suggestedQty = heatDelta > 0 ? 30 + Math.floor(Math.random() * 20) : 0;
+  state.purchasePlan.push({
+    id: 'p' + Date.now(),
+    ip,
+    product: '',
+    cost: 0,
+    suggestedQty,
+    heatDelta: heatDelta || 0,
+    reason: trend ? trend.action : '基于 AI 分析建议',
+    source: '周报 IP 异动',
+    createdAt: new Date().toISOString(),
+    done: false,
+  });
+  toast("✓ 「" + ip + "」已加入进货计划");
+  render();
+}
+
+/* ============================================================
+ * Toast 简易提示
+ * ============================================================ */
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast-pop';
+  el.textContent = msg;
+  el.style.cssText = 'position:fixed;left:50%;top:80px;transform:translateX(-50%) translateY(-20px);background:var(--primary-dark);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;z-index:9999;opacity:0;transition:all .3s var(--ease);box-shadow:var(--shadow-lg);';
+  document.body.appendChild(el);
+  requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)'; });
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(-20px)';
+    setTimeout(() => el.remove(), 300);
+  }, 2000);
+}
+
+/* ============================================================
+ * AI 经营助手事件绑定 + 智能回答
+ * ============================================================ */
+function bindAI() {
+  const fab = $("#ai-fab");
+  const win = $("#ai-window");
+  const close = $("#ai-close");
+  const input = $("#ai-input");
+  const send = $("#ai-send");
+
+  if (!fab || !win) return;
+
+  // 切换窗口
+  fab.addEventListener("click", () => {
+    win.classList.toggle("open");
+    if (win.classList.contains("open")) {
+      setTimeout(() => input?.focus(), 300);
+    }
+  });
+  close?.addEventListener("click", () => win.classList.remove("open"));
+
+  // 发送
+  const doAsk = () => {
+    const q = input.value.trim();
+    if (!q) return;
+    askAI(q);
+    input.value = "";
+  };
+  send?.addEventListener("click", doAsk);
+  input?.addEventListener("keydown", e => {
+    if (e.key === "Enter") doAsk();
+  });
+
+  // 快捷问题
+  $$("#ai-quick button").forEach(b => b.addEventListener("click", () => {
+    const q = b.dataset.q;
+    askAI(q);
+  }));
+}
+
+function askAI(question) {
+  const messages = $("#ai-messages");
+  if (!messages) return;
+
+  // 用户消息
+  const userEl = document.createElement("div");
+  userEl.className = "ai-msg user";
+  userEl.textContent = question;
+  messages.appendChild(userEl);
+
+  // typing 指示
+  const typingEl = document.createElement("div");
+  typingEl.className = "ai-msg bot";
+  typingEl.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>';
+  messages.appendChild(typingEl);
+  messages.scrollTop = messages.scrollHeight;
+
+  // 模拟 AI 思考（600ms）
+  setTimeout(() => {
+    const ctx = { products: MOCK.products, ipTrends: MOCK.ipTrends, todos: state.todos };
+    const res = window.AIAdvisor.ask(question, ctx);
+    typingEl.innerHTML = formatAI(res.answer) + `<div class="msg-meta">${res.type} · ${new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+  }, 600);
+}
+
+function formatAI(text) {
+  // 简单 markdown：粗体 + 换行
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--primary-dark);">$1</strong>')
+    .replace(/\n/g, '<br/>');
+}
+
+/* =========================================================
+ * 3. 弹窗
+ * ========================================================= */
+function openModal(name, idx) {
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  // 部分弹窗需要更大的宽度
+  const lgModals = ["ip-trend", "clearance-detail", "purchase-reason", "modify-pos", "monthly-clearance-detail", "monthly-clearance-plan", "todo-detail"];
+  const cls = lgModals.includes(name) ? "modal lg" : "modal";
+  overlay.innerHTML = `<div class="${cls}" id="modal-box">${renderModal(name, idx)}</div>`;
+  document.body.appendChild(overlay);
+  // 关闭
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay) closeModal();
+  });
+  if (!escBound) {
+    document.addEventListener("keydown", escClose);
+    escBound = true;
+  }
+  bindModal(name, idx, overlay);
+}
+
+let escBound = false;
+function escClose(e) { if (e.key === "Escape") closeModal(); }
+
+function closeModal() {
+  $$(".modal-overlay").forEach(el => el.remove());
+  if (escBound) {
+    document.removeEventListener("keydown", escClose);
+    escBound = false;
+  }
+}
+
+function renderModal(name, idx) {
+  switch (name) {
+    case "order-detail":      return modalOrderDetail();
+    case "inventory-detail":  return modalInventoryDetail();
+    case "ip-trend":          return modalIpTrend(idx);
+    case "clearance-detail":  return modalClearanceDetail();
+    case "purchase-reason":   return modalPurchaseReason(idx);
+    case "add-receipt":       return modalAddReceipt();
+    case "modify-pos":        return modalModifyPos();
+    case "clearance-plan":    return modalClearancePlan();
+    case "todo-detail":       return modalTodoDetail(idx);
+    case "monthly-clearance-detail": return modalMonthlyClearanceDetail(idx);
+    case "monthly-clearance-plan":   return modalMonthlyClearancePlan(idx);
+    default: return "";
+  }
+}
+
+function bindModal(name, idx, overlay) {
+  const box = $("#modal-box", overlay);
+  if (name === "clearance-detail") {
+    $$("[data-plan-option]", box).forEach(el => {
+      el.addEventListener("click", () => {
+        // 切换选中态
+        $$("[data-plan-option]").forEach(x => x.classList.remove("selected"));
+        el.classList.add("selected");
+        // 展开/收起步骤：只展开当前选中的
+        $$("[data-plan-steps]").forEach(s => s.style.display = "none");
+        const steps = el.querySelector("[data-plan-steps]");
+        if (steps) steps.style.display = "block";
+        state.selectedClearance = el.dataset.planOption;
+        const next = $("[data-modal-next]", box);
+        if (next) next.disabled = false;
+      });
+    });
+    $("[data-modal-next]", box)?.addEventListener("click", () => {
+      closeModal();
+      openModal("clearance-plan");
+    });
+  }
+  if (name === "purchase-reason") {
+    // 单选行为
+    $$("[data-purchase-card]", box).forEach(el => {
+      el.addEventListener("click", () => {
+        $$("[data-purchase-card]").forEach(x => x.classList.remove("selected"));
+        el.classList.add("selected");
+      });
+    });
+  }
+  if (name === "add-receipt") {
+    $("[data-submit-receipt]", box)?.addEventListener("click", () => {
+      const date = $("[name=date]", box).value || new Date().toISOString().slice(0,10);
+      const ip = $("[name=ip]", box).value || "其他 IP";
+      const product = $("[name=product]", box).value || "未命名商品";
+      const qty = parseInt($("[name=qty]", box).value || "1", 10);
+      const amount = parseInt($("[name=amount]", box).value || "0", 10);
+      state.receipts.unshift({ date, ip, product, qty, amount });
+      closeModal();
+      render();
+    });
+  }
+  if (name === "modify-pos") {
+    $$("[data-pos-item]", box).forEach(el => {
+      el.addEventListener("click", () => {
+        $$("[data-pos-item]").forEach(x => x.classList.remove("selected"));
+        el.classList.add("selected");
+        const posId = el.dataset.posItem;
+        $("[data-pos-confirm]", box).disabled = false;
+        $("[data-pos-confirm]", box).onclick = () => {
+          const pos = MOCK.posSystems.find(p => p.id === posId);
+          MOCK.store.pos = pos.name;
+          MOCK.store.posConnectedAt = new Date().toISOString().slice(0,10);
+          closeModal();
+          render();
+        };
+      });
+    });
+  }
+  // 通用关闭
+  $$("[data-modal-close]", box).forEach(el => el.addEventListener("click", closeModal));
+
+  // To Do 详情弹窗：标记完成 / 重启
+  if (name === "todo-detail") {
+    $$("[data-todo-mark-done]", box).forEach(el => {
+      el.addEventListener("click", () => {
+        const todo = state.todos.find(t => t.id === el.dataset.todoMarkDone);
+        if (todo) todo.done = !todo.done;
+        closeModal();
+        render();
+      });
+    });
+  }
+  // 月报清仓详情弹窗：点击"制定 To Do 计划"按钮
+  if (name === "monthly-clearance-detail") {
+    $$("[data-mc-create]", box).forEach(el => {
+      el.addEventListener("click", () => {
+        closeModal();
+        openModal("monthly-clearance-plan", el.dataset.mcCreate);
+      });
+    });
+  }
+  // 月报清仓计划弹窗：确认加入看板
+  if (name === "monthly-clearance-plan") {
+    $$("[data-mc-confirm]", box).forEach(el => {
+      el.addEventListener("click", () => {
+        const c = MOCK.monthlyClearance.find(x => x.id === el.dataset.mcConfirm);
+        if (!c) return;
+        // 创建一个 To Do 加入看板
+        const newTodo = {
+          id: "t" + Date.now(),
+          priority: c.urgency,
+          category: "滞销",
+          source: "月报",
+          sourceLabel: "7月月报 · " + c.title.split("·")[0].trim(),
+          title: c.title,
+          affects: c.affects,
+          ddl: new Date(Date.now() + (c.urgency === 3 ? 30 : c.urgency === 2 ? 20 : 15) * 86400000).toISOString().slice(0, 10),
+          done: false,
+          steps: c.steps
+        };
+        state.todos.unshift(newTodo);
+        closeModal();
+        // 跳到看板
+        state.page = "dashboard";
+        render();
+      });
+    });
+  }
+}
+
+/* ----- 弹窗 1：订单详情 ----- */
+function modalOrderDetail() {
+  // 排序：按 soldTotal 倒序
+  const sorted = [...MOCK.products].sort((a,b) => b.soldTotal - a.soldTotal);
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>商品销售排行</h3>
+        <div class="sub">所有 IP · 共 ${MOCK.products.length} 个 SKU · 数据基于模拟</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="center" style="width:48px;">排名</th>
+            <th>IP / 商品</th>
+            <th class="right">售出数</th>
+            <th class="right">剩余数</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sorted.map((p, i) => {
+            const isZero = p.soldTotal === 0;
+            const isYellow = isZero || p.daysSinceSale >= 3;
+            const isRed = p.daysSinceSale >= 7;
+            const cls = isRed ? "row-danger" : isYellow ? "row-warn" : "";
+            const status = isRed
+              ? `<span class="tag tag-danger">${p.daysSinceSale} 天未售 · 紧急</span>`
+              : p.daysSinceSale >= 3
+                ? `<span class="tag tag-warning">${p.daysSinceSale} 天未售 · 关注</span>`
+                : isZero
+                  ? `<span class="tag tag-warning">未售出</span>`
+                  : `<span class="tag tag-success">正常</span>`;
+            return `
+              <tr class="${cls}">
+                <td class="center rank ${i<3?'top':''}">${i+1}</td>
+                <td>
+                  <div class="ip-name" style="font-weight:500;">${p.name}</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${p.ip}</div>
+                </td>
+                <td class="right num" style="font-weight:600;">${p.soldTotal}</td>
+                <td class="right num">${p.stock}</td>
+                <td>${status}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <div style="margin-right:auto;font-size:12px;color:var(--text-muted);">
+        <span style="display:inline-block;width:10px;height:10px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:2px;margin-right:4px;"></span>黄色 = 未售出 / 3 天未售
+        <span style="display:inline-block;width:10px;height:10px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:2px;margin:0 4px 0 12px;"></span>红色 = 7 天以上未售
+      </div>
+      <button class="btn" data-modal-close>关闭</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 2：库存价值 IP 占比 ----- */
+function modalInventoryDetail() {
+  // 按 IP 聚合
+  const ipMap = {};
+  MOCK.products.forEach(p => {
+    if (!ipMap[p.ip]) ipMap[p.ip] = { value: 0, count: 0 };
+    ipMap[p.ip].value += p.stock * p.cost;
+    ipMap[p.ip].count += p.stock;
+  });
+  const arr = Object.entries(ipMap).map(([ip, v]) => ({ ip, ...v })).sort((a,b)=>b.value-a.value);
+  const total = arr.reduce((s, x) => s + x.value, 0);
+  const colors = ["#4F7A5B","#E89B45","#3B82F6","#8B5CF6","#EC4899","#F59E0B","#10B981","#EF4444","#6366F1","#14B8A6"];
+
+  // 渲染饼图 SVG
+  let start = 0;
+  const segs = arr.map((x, i) => {
+    const angle = (x.value / total) * Math.PI * 2;
+    const end = start + angle;
+    const x1 = 80 + 60 * Math.cos(start - Math.PI/2);
+    const y1 = 80 + 60 * Math.sin(start - Math.PI/2);
+    const x2 = 80 + 60 * Math.cos(end - Math.PI/2);
+    const y2 = 80 + 60 * Math.sin(end - Math.PI/2);
+    const large = angle > Math.PI ? 1 : 0;
+    const d = `M80,80 L${x1.toFixed(2)},${y1.toFixed(2)} A60,60 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z`;
+    const seg = `<path d="${d}" fill="${colors[i % colors.length]}" />`;
+    start = end;
+    return seg;
+  }).join("");
+
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>库存价值 IP 占比</h3>
+        <div class="sub">总价值 ${fmt.money(total)} · ${MOCK.products.length} 个 SKU · 按占用资金计算</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="donut-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="60" fill="#F3F4F6" />
+          ${segs}
+          <circle cx="80" cy="80" r="32" fill="#fff" />
+          <text x="80" y="76" text-anchor="middle" font-size="11" fill="#6B7280">库存总值</text>
+          <text x="80" y="93" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2421">${fmt.money(total)}</text>
+        </svg>
+        <div class="donut-legend">
+          ${arr.map((x, i) => `
+            <div class="legend-item">
+              <div class="swatch" style="background:${colors[i % colors.length]}"></div>
+              <div>${x.ip}</div>
+              <div class="val num">${fmt.money(x.value)}</div>
+              <div class="pct num">${((x.value/total)*100).toFixed(1)}%</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+      <table class="data-table ip-table" style="margin-top:8px;">
+        <thead>
+          <tr>
+            <th>IP</th>
+            <th class="right">库存件数</th>
+            <th class="right">占用资金</th>
+            <th>占比</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${arr.map((x, i) => `
+            <tr>
+              <td class="ip-name">
+                <span style="display:inline-block;width:10px;height:10px;background:${colors[i % colors.length]};border-radius:2px;margin-right:8px;"></span>
+                ${x.ip}
+              </td>
+              <td class="right num">${x.count}</td>
+              <td class="right num">${fmt.money(x.value)}</td>
+              <td>
+                <div class="progress"><span style="width:${((x.value/total)*100).toFixed(1)}%;background:${colors[i % colors.length]}"></span></div>
+                <div class="num" style="font-size:11px;color:var(--text-muted);margin-top:3px;">${((x.value/total)*100).toFixed(1)}%</div>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>关闭</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 3：IP 热度异动详情 ----- */
+function modalIpTrend(idx) {
+  const t = MOCK.ipTrends[idx];
+  const points = t.history.map((v, i) => {
+    const x = (i / (t.history.length - 1)) * 540 + 20;
+    const min = Math.min(...t.history) * 0.9;
+    const max = Math.max(...t.history) * 1.1;
+    const y = 130 - ((v - min) / (max - min)) * 100;
+    return [x, y];
+  });
+  const path = points.map((p, i) => (i === 0 ? "M" : "L") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  const area = path + ` L560,130 L20,130 Z`;
+
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>${t.ip} · 热度异动详情</h3>
+        <div class="sub">${t.delta > 0 ? "热度上升" : "热度下降"} ${Math.abs(t.delta)}% · 近 7 日数据</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+        <div class="spark-wrap">
+          <div class="spark-info">
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);">当前热度指数</div>
+              <div class="now num">${t.current}</div>
+            </div>
+            <div>
+              <div class="delta ${t.delta>0?'up':'down'}" style="font-size:18px;font-weight:600;">
+                ${t.delta > 0 ? "▲" : "▼"} ${Math.abs(t.delta)}%
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);text-align:right;">vs 上周 ${t.prev}</div>
+            </div>
+          </div>
+          <svg width="580" height="160" viewBox="0 0 580 160" style="width:100%;height:auto;">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="${t.delta>0?'#10B981':'#F59E0B'}" stop-opacity="0.25" />
+                <stop offset="100%" stop-color="${t.delta>0?'#10B981':'#F59E0B'}" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            ${[0,1,2,3].map(i => `<line x1="20" y1="${30 + i*25}" x2="560" y2="${30 + i*25}" stroke="#F3F4F6" stroke-dasharray="3,3" />`).join("")}
+            <path d="${area}" fill="url(#g1)" />
+            <path d="${path}" fill="none" stroke="${t.delta>0?'#10B981':'#F59E0B'}" stroke-width="2.5" />
+            ${points.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="#fff" stroke="${t.delta>0?'#10B981':'#F59E0B'}" stroke-width="2" />`).join("")}
+            ${t.history.map((v, i) => {
+              const x = (i / (t.history.length - 1)) * 540 + 20;
+              return `<text x="${x.toFixed(1)}" y="155" text-anchor="middle" font-size="10" fill="#9CA3AF">${["7天前","6天前","5天前","4天前","3天前","2天前","今天"][i]}</text>`;
+            }).join("")}
+          </svg>
+        </div>
+
+        <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="padding:14px;background:#FCFBF8;border-radius:var(--radius);">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><img src="icons/icon-chart.png" class="ico ico-sm" alt="" /> 异动原因分析</div>
+            <div style="font-size:13px;line-height:1.7;">${t.reason}</div>
+          </div>
+          <div style="padding:14px;background:${t.delta>0?'#D1FAE5':'#FEF3C7'};border-radius:var(--radius);">
+            <div style="font-size:12px;color:${t.delta>0?'#047857':'#B45309'};margin-bottom:6px;display:flex;align-items:center;gap:6px;">${icon(t.delta>0?"lightbulb":"sparkles", "ico-sm")} 谷雨建议</div>
+            <div style="font-size:13px;line-height:1.7;color:${t.delta>0?'#047857':'#92400E'};">${t.action}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-modal-close>关闭</button>
+        <button class="btn btn-primary">应用到进货计划</button>
+      </div>
+  `;
+}
+
+/* ----- 弹窗 4：清仓方案详细教学 ----- */
+function modalClearanceDetail() {
+  // 模拟 3 套完整方案，每套都有"手把手损失最小化"教程
+  const plans = [
+    {
+      id: "A",
+      level: "紧急",
+      name: "组合方案 A：超低折扣 5 折 + 漫展出摊",
+      desc: "适合 7+ 天未售的 SKU，目标 14 天内回款 60%。",
+      expected: "回款率 60% · 损耗 8% · 14 天清完",
+      steps: [
+        { title: "<img src='icons/icon-package.png' class='ico ico-step'/>：分拣与定价", body: "将 7+ 天未售的 SKU 单独打包，统一定价 5 折（按原标价，非成本价）。保留成本价内部记录。" },
+        { title: "<img src='icons/icon-calendar.png' class='ico ico-step'/>：预约漫展档口", body: "打开‘我的店铺 → 添加新单据’后，可在周末出摊页登记。Demo 环境假设本周日有档口 1 个。" },
+        { title: "<img src='icons/icon-tent.png' class='ico ico-step'/>：摊位陈列", body: "采用'盲盒式'陈列，5 个 SKU 一组 99 元，提高客单价。注意：保留人角色立牌正面展示位。" },
+        { title: "<img src='icons/icon-megaphone.png' class='ico ico-step'/>：小红书种草", body: "出摊前 1 天发布 1 条笔记《周末漫展出摊·5 折捡漏清单》，带 #谷子 #二次元 话题，曝光 +30%。" },
+        { title: "<img src='icons/icon-money-bag.png' class='ico ico-step'/>：现金回笼", body: "收摊当晚立即盘点，剩余 SKU 当晚 6 折线上清，已收现金入账；3 天后仍未售出，3 折出闲鱼。" },
+      ]
+    },
+    {
+      id: "B",
+      level: "严重",
+      name: "组合方案 B：8 折 + 满 2 件减 10 元",
+      desc: "适合 3-6 天未售的 SKU，目标 10 天内回款 80%。",
+      expected: "回款率 80% · 损耗 5% · 10 天清完",
+      steps: [
+        { title: "<img src='icons/icon-package.png' class='ico ico-step'/>：选品与标签", body: "选出 3-6 天未售的 SKU，贴上橙色'SALE'标签，标识 8 折。" },
+        { title: "<img src='icons/icon-cart.png' class='ico ico-step'/>：调整店内陈列", body: "把促销 SKU 放到门口主推位，与热门 SKU 摆放距离不超过 1 米，提升连带率。" },
+        { title: "<img src='icons/icon-gift.png' class='ico ico-step'/>：满减规则", body: "满 2 件减 10 元，引导顾客凑单。客服话术：'再带一个吧唧凑 2 件可以减 10 元哦~'" },
+        { title: "<img src='icons/icon-phone.png' class='ico ico-step'/>：会员群推送", body: "通过企微社群定向推送 1 次，附 3 张高清图 + 倒计时（72 小时内有效）制造紧迫感。" },
+        { title: "<img src='icons/icon-refresh.png' class='ico ico-step'/>：复盘与转货", body: "10 天后剩余 10% 以内的 SKU，调拨至夜市档口或闲鱼转售，避免堆回仓库。" },
+      ]
+    },
+    {
+      id: "C",
+      level: "观察",
+      name: "组合方案 C：调整陈列 + 小红书种草",
+      desc: "不打价格战，靠曝光与陈列提升转化。",
+      expected: "回款率 95% · 损耗 2% · 提升品牌粘性",
+      steps: [
+        { title: "<img src='icons/icon-camera.png' class='ico ico-step'/>：拍 5 张主图", body: "用手机拍出该 SKU 的 3 个角度 + 1 个细节 + 1 个场景图，要求背景干净，光线自然。" },
+        { title: icon("edit", "ico-step") + " 第二步：写 1 条笔记", body: "结构：痛点（粉丝找不到某角色吧唧）→ 展示（你店有）→ 行动（地址 + 营业时间）。300 字以内。" },
+        { title: "<img src='icons/icon-store.png' class='ico ico-step'/>：店内动线重排", body: "把该 SKU 移到收银台附近视线位，叠加小卡片'本月新到'。" },
+        { title: "<img src='icons/icon-refresh.png' class='ico ico-step'/>：复盘（7 天）", body: "若 7 天内仍未售出，下调至方案 B；若售出 ≥ 5 件，保留当前策略。" },
+      ]
+    }
+  ];
+
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>清仓方案 · 手把手损失最小化教学</h3>
+        <div class="sub">3 套完整方案 · 选择 1 套后 → 制定专属清仓小计划 + 必做清单 + DDL</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div id="plan-options">
+        ${plans.map(p => `
+          <div class="plan-option" data-plan-option="${p.id}">
+            <div class="po-head">
+              <span class="tag ${p.level==='紧急'?'tag-danger':p.level==='严重'?'tag-warning':'tag-info'}">方案 ${p.id} · ${p.level}</span>
+              <span class="po-name">${p.name}</span>
+            </div>
+            <div class="po-desc">${p.desc}</div>
+            <div class="po-expected"><img src="icons/icon-chart.png" class="ico ico-sm" alt="" /> 预期：<strong>${p.expected}</strong></div>
+
+            <div class="po-steps" data-plan-steps="${p.id}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><img src="icons/icon-book.png" class="ico ico-sm" alt="" /> 手把手教学 · 损失最小化执行步骤：</div>
+              ${p.steps.map((s, i) => `
+                <div class="tutorial-step">
+                  <div class="ts-num">${i+1}</div>
+                  <div>
+                    <div class="ts-title">${s.title}</div>
+                    <div class="ts-body">${s.body}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>取消</button>
+      <button class="btn btn-primary" data-modal-next disabled>选择此方案，制定清仓计划 →</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 5：进货依据 ----- */
+function modalPurchaseReason(idx) {
+  const data = [
+    { ip: "葬送的芙莉莲", name: "芙莉莲 吧唧（白情复刻）",
+      reasons: [
+        { icon: "fire", title: "热度指数 +38%", body: "剧场版定档消息放出后，淘宝指数从 100 飙升至 138，全平台二次创作量 +38%，在 B 站相关二创视频日均 +120 条。" },
+        { icon: "package", title: "门店库存告急", body: "当前库存仅剩 6 个，本周已售出 4 个，按当前速度 2 天内将断货，影响连带销售。" },
+        { icon: "target", title: "季节档期契合", body: "本月底剧场版上映 + 七夕档期，预测该 IP 周边需求将持续走高 4-6 周。" },
+        { icon: "money-bag", title: "毛利空间充足", body: "成本 ¥8 / 售价 ¥25，毛利率 68%，即便 8 折促销仍可保 50% 毛利。" }
+      ]
+    },
+    { ip: "葬送的芙莉莲", name: "欣梅尔 亚克力立牌",
+      reasons: [
+        { icon: "new", title: "新角色热度爬升", body: "欣梅尔作为新角色，二创占比由 5% 升至 22%，用户主动搜索行为明显。" },
+        { icon: "package", title: "当前库存 9 个", body: "已售出 7 个，周转化率 78%，处于热销阶段。" },
+        { icon: "palette", title: "周边品类尚未饱和", body: "店内芙莉莲亚克力仅 1 款，新到 1-2 款可丰富 SKU，提升连带率。" }
+      ]
+    },
+    { ip: "孤独摇滚", name: "后藤一里 谷子套装",
+      reasons: [
+        { icon: "fire", title: "持续热卖", body: "近 4 周每周稳定售出 11+ 件，列 SKU 周销榜 Top 1。" },
+        { icon: "package", title: "库存紧张", body: "当前仅剩 7 个，按当前速度 1 周内断货。" },
+        { icon: "cash", title: "高客单价 SKU", body: "单价 ¥198，是店铺毛利率最高的 SKU 之一（毛利率 56%）。" }
+      ]
+    },
+    { ip: "蓝色监狱", name: "凪诚士郎 亚克力（新色）",
+      reasons: [
+        { icon: "trophy", title: "角色热度 Top 3", body: "近 30 天角色榜稳定前三，搜索 + 收藏行为持续。" },
+        { icon: "package", title: "现有库存告急", body: "老色亚克力仅剩 6 个，新色到货可补充 SKU 矩阵。" }
+      ]
+    },
+    { ip: "咒术回战", name: "五条悟 拍立得套装",
+      reasons: [
+        { icon: "scale", title: "维持经典款供给", body: "虽然 IP 整体热度下降 15%，但经典角色五条悟仍有稳定粉丝盘。" },
+        { icon: "refresh", title: "补充断货 SKU", body: "店内五条悟拍立得连续 2 周缺货，影响连带。" }
+      ]
+    }
+  ];
+  const item = data[parseInt(idx, 10)] || data[0];
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>进货推荐 · ${item.name}</h3>
+        <div class="sub">${item.ip} · 谷雨 AI 依据多维度数据</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:14px;background:var(--primary-soft);border-radius:var(--radius);margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--primary-dark);font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:6px;"><img src="icons/icon-target.png" class="ico ico-sm" alt="" /> 推荐摘要</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--text);">
+          谷雨综合 <strong>4 个维度</strong> 判断 <strong>${item.name}</strong> 应当列入下周进货清单。
+          下文为各维度的详细依据，点击"采纳此推荐"即可一键加到进货计划。
+        </div>
+      </div>
+      <div class="reason-list">
+        ${item.reasons.map(r => `
+          <div class="reason-item">
+            <div class="ri-ico">${icon(r.icon, "ico-md")}</div>
+            <div>
+              <div class="ri-title">${r.title}</div>
+              <div class="ri-body">${r.body}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>关闭</button>
+      <button class="btn btn-primary"><img src="icons/icon-check.png" class="ico ico-sm" alt="" /> 采纳此推荐</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 6：制定清仓小计划 ----- */
+function modalClearancePlan() {
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>制定清仓小计划</h3>
+        <div class="sub">已选方案：${state.selectedClearance || "B"} · 必做清单 + DDL</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-form">
+        <div class="form-group">
+          <label class="form-label">清仓目标 SKU（可多选）</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${MOCK.products.filter(p => p.daysSinceSale >= 3).map(p => `
+              <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border-strong);border-radius:20px;font-size:12px;cursor:pointer;">
+                <input type="checkbox" /> ${p.name}
+              </label>
+            `).join("")}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">完成 DDL</label>
+          <input type="date" class="form-input" value="${new Date(Date.now()+14*86400000).toISOString().slice(0,10)}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">必做清单（自动生成）</label>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px;background:#FCFBF8;border-radius:var(--radius);">
+            ${[
+              "<img src='icons/icon-package.png' class='ico ico-sm'/>  SKU 分拣与 5/8 折标签打印",
+              "<img src='icons/icon-megaphone.png' class='ico ico-sm'/> 社群发布 1 条清仓推送",
+              "<img src='icons/icon-tent.png' class='ico ico-sm'/> 漫展档口预约",
+              "<img src='icons/icon-phone.png' class='ico ico-sm'/>  1 条小红书笔记",
+              "<img src='icons/icon-money-bag.png' class='ico ico-sm'/> 盘点剩余并执行 3 折出闲鱼",
+            ].map((t, i) => `
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                <input type="checkbox" /> <span>${t}</span>
+              </label>
+            `).join("")}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">负责人 / 备注</label>
+          <input class="form-input" placeholder="例如：店长本人 / 兼职小李" value="林老板" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>取消</button>
+      <button class="btn btn-primary">确认创建计划</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 9：To Do 详情（手把手教学） ----- */
+function modalTodoDetail(id) {
+  const t = state.todos.find(x => x.id === id);
+  if (!t) return "<div>待办不存在</div>";
+  return `
+    <div class="modal-head">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span class="tag ${t.priority===3?'tag-danger':t.priority===2?'tag-warning':'tag-info'}">${t.priority===3?'🔥 紧急':t.priority===2?'⚠️ 中等':'📌 普通'}</span>
+          <span class="tag tag-gray">${t.category}</span>
+          <span class="tag" style="background:var(--primary-soft);color:var(--primary-dark);">📍 ${t.sourceLabel}</span>
+        </div>
+        <h3 style="font-size:18px;">${t.title}</h3>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      ${t.affects.length > 0 ? `
+        <div class="todo-detail-affects">
+          <span style="font-size:12px;color:var(--text-muted);">涉及 IP：</span>
+          ${t.affects.map(ip => `<span class="tag">${ip}</span>`).join("")}
+        </div>
+      ` : ""}
+      ${t.ddl ? `
+        <div style="padding:10px 14px;background:var(--warning-soft);color:#92400E;border-radius:var(--radius);font-size:13px;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+          ⏰ <strong>DDL：${t.ddl}</strong> · 距今还有 ${Math.ceil((new Date(t.ddl) - new Date())/86400000)} 天
+        </div>
+      ` : ""}
+      <div style="font-size:13px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        ${icon("book", "ico-sm")} 手把手教学 · 共 ${t.steps.length} 步
+      </div>
+      <div>
+        ${t.steps.map((s, i) => `
+          <div class="tutorial-step">
+            <div class="ts-num">${i+1}</div>
+            <div>
+              <div class="ts-title">${s.title}</div>
+              <div class="ts-body">${s.body}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>关闭</button>
+      <button class="btn btn-primary" data-todo-mark-done="${t.id}">${t.done ? '↺ 重启待办' : '✓ 标记完成'}</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 10：月报清仓方案详情（5 步教学） ----- */
+function modalMonthlyClearanceDetail(id) {
+  const c = MOCK.monthlyClearance.find(x => x.id === id);
+  if (!c) return "<div>方案不存在</div>";
+  return `
+    <div class="modal-head">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span class="tag ${c.level==='紧急'?'tag-danger':c.level==='严重'?'tag-warning':'tag-info'}">${c.level}清仓 · ${c.affects.length} 个 IP</span>
+        </div>
+        <h3 style="font-size:18px;">${c.title}</h3>
+        <div class="sub">基于月度销售数据 + IP 生命周期判断</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:var(--primary-soft);border-radius:var(--radius);font-size:13px;line-height:1.7;color:var(--text);margin-bottom:14px;">
+        ${c.desc}
+      </div>
+      <div style="padding:10px 14px;background:#FCFBF8;border-radius:var(--radius);font-size:13px;margin-bottom:18px;">
+        📊 <strong>预期：</strong>${c.expected}
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+        ${icon("book", "ico-sm")} 手把手教学 · 共 ${c.steps.length} 步
+      </div>
+      ${c.steps.map((s, i) => `
+        <div class="tutorial-step">
+          <div class="ts-num">${i+1}</div>
+          <div>
+            <div class="ts-title">${s.title}</div>
+            <div class="ts-body">${s.body}</div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>关闭</button>
+      <button class="btn btn-primary" data-mc-create="${c.id}">✓ 制定 To Do 计划</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 11：月报清仓 To Do 计划（创建/编辑） ----- */
+function modalMonthlyClearancePlan(id) {
+  const c = MOCK.monthlyClearance.find(x => x.id === id);
+  if (!c) return "<div>方案不存在</div>";
+  const urgencyDays = c.urgency === 3 ? 30 : c.urgency === 2 ? 20 : 15;
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>制定清仓 To Do 计划</h3>
+        <div class="sub">${c.title} · 必做清单 ${c.steps.length} 条 + DDL</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-form">
+        <div class="form-group">
+          <label class="form-label">优先级（按方案紧急程度自动建议）</label>
+          <div style="display:flex;gap:8px;">
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--primary);background:var(--primary-soft);border-radius:20px;font-size:12px;cursor:pointer;color:var(--primary-dark);font-weight:500;">
+              <input type="radio" name="priority" value="${c.urgency}" checked />
+              ${c.urgency===3?'🔥 紧急':c.urgency===2?'⚠️ 中等':'📌 普通'}
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">完成 DDL</label>
+          <input type="date" class="form-input" value="${new Date(Date.now()+urgencyDays*86400000).toISOString().slice(0,10)}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">必做清单（来自方案的 ${c.steps.length} 步教学）</label>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px;background:#FCFBF8;border-radius:var(--radius);">
+            ${c.steps.map((s, i) => `
+              <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer;line-height:1.5;">
+                <input type="checkbox" checked style="margin-top:3px;" />
+                <span><strong>第 ${i+1} 步 · ${s.title}：</strong>${s.body}</span>
+              </label>
+            `).join("")}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">负责人 / 备注</label>
+          <input class="form-input" placeholder="例如：店长本人 / 兼职小李" value="林老板" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>取消</button>
+      <button class="btn btn-primary" data-mc-confirm="${c.id}">✓ 加入今日看板</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 7：添加新单据 ----- */
+function modalAddReceipt() {
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>添加新的单据</h3>
+        <div class="sub">手动录入一笔销售或进货记录</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-form">
+        <div class="row-2">
+          <div>
+            <label class="form-label">单据类型</label>
+            <select class="form-select">
+              <option>销售</option>
+              <option>进货</option>
+              <option>退货</option>
+              <option>调拨</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" name="date" value="${new Date().toISOString().slice(0,10)}" />
+          </div>
+        </div>
+        <div>
+          <label class="form-label">IP 名称</label>
+          <input class="form-input" name="ip" placeholder="如：咒术回战" />
+        </div>
+        <div>
+          <label class="form-label">商品名称</label>
+          <input class="form-input" name="product" placeholder="如：五条悟 亚克力立牌" />
+        </div>
+        <div class="row-2">
+          <div>
+            <label class="form-label">数量</label>
+            <input class="form-input" name="qty" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label class="form-label">金额 (¥)</label>
+            <input class="form-input" name="amount" type="number" min="0" value="45" />
+          </div>
+        </div>
+        <div>
+          <label class="form-label">备注（可选）</label>
+          <input class="form-input" placeholder="例如：会员价 / 漫展客户" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>取消</button>
+      <button class="btn btn-primary" data-submit-receipt><img src="icons/icon-check.png" class="ico ico-sm" alt="" /> 录入单据</button>
+    </div>
+  `;
+}
+
+/* ----- 弹窗 8：修改收银系统 ----- */
+function modalModifyPos() {
+  return `
+    <div class="modal-head">
+      <div>
+        <h3>修改收银系统</h3>
+        <div class="sub">当前已接入：<strong style="color:var(--primary);">${MOCK.store.pos}</strong>（${MOCK.store.posConnectedAt} 接入）</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">选择新的收银系统后，谷雨将重新同步您的销售数据：</div>
+      <div class="pos-list">
+        ${MOCK.posSystems.map(p => `
+          <div class="pos-item" data-pos-item="${p.id}">
+            <div class="icon">${p.icon}</div>
+            <div>
+              <div class="name">${p.name}</div>
+              <div class="meta">${p.meta}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+      <div style="margin-top:18px;padding:12px 14px;background:var(--warning-soft);color:#92400E;border-radius:var(--radius);font-size:12px;">
+        <img src="icons/icon-warning.png" class="ico ico-sm" alt="" /> 切换收银系统后，最近 7 天的单据需重新同步，约需 2-3 分钟。
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-modal-close>取消</button>
+      <button class="btn btn-primary" data-pos-confirm disabled>确认切换</button>
+    </div>
+  `;
+}
+
+/* =========================================================
+ * 启动
+ * ========================================================= */
+document.addEventListener("DOMContentLoaded", render);
+</script>
+</body>
+</html>
