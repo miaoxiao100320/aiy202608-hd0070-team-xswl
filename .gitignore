@@ -1,0 +1,26 @@
+# ===== 🔑 敏感信息：绝不上传（重要！）=====
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+config.local.*
+credentials.*
+# 命题企业的私有数据 / 接口 key，请放进 .env 或用占位符
+
+# ===== 依赖与构建产物 =====
+node_modules/
+dist/
+build/
+.next/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# ===== 系统 / 编辑器 =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
