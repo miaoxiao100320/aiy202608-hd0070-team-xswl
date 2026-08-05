@@ -191,6 +191,17 @@ npm run dev
 ## 📄 版权与许可
 本作品版权归 **【真正参与的队员姓名】** 共同所有，采用 [MIT License](./LICENSE) 开源。
 欢迎学习与参考，使用请署名。
+图片链接：<img width="2880" height="1738" alt="0bb96c7c6c4cc3df9eaed9d13ede54a9" src="https://github.com/user-attachments/assets/0e21456a-f8bd-481d-8651-18057b330121" />
+图片链接：<img width="2880" height="1738" alt="ad56e7d354b87b9d8ca49aa9798e5477" src="https://github.com/user-attachments/assets/61f64088-0537-4580-8833-508836d044f6" />
+
+
+
+
+
+
+
+
+
 
 > 本项目为 AIY 黑客松参赛作品，作品归团队所有；AIY 组委会仅作收录与展示。
 <img width="2880" height="1738" alt="ad56e7d354b87b9d8ca49aa9798e5477" src="https://github.com/user-attachments/assets/aa9ab15c-4254-485a-9fd3-ed097feb6e6a" />
