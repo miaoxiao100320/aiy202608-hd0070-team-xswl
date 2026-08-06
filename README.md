@@ -106,7 +106,8 @@ Eg：
 
 🎬 演示
 
-【图片放这里】
+【<img width="2880" height="1738" alt="27c353cc3ffdd042415af4cfabdebeea" src="https://github.com/user-attachments/assets/b63ab067-9b1c-4ec3-b488-ae157b3a2571" />
+】
 
 🔗 在线体验：
 
